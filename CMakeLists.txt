@@ -4,7 +4,26 @@ if (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
     message(FATAL_ERROR "Building in-source is not supported! Create a build dir and remove ${CMAKE_SOURCE_DIR}/CMakeCache.txt")
 endif()
 
+option(SWITCH_BUILD "Build for the Nintendo Switch handheld game console." ON)
+if(SWITCH_BUILD)
+    if(DEFINED ENV{DEVKITPRO})
+        set(DEVKITPRO $ENV{DEVKITPRO})
+        set(CMAKE_TOOLCHAIN_FILE "${DEVKITPRO}/switch.cmake" CACHE PATH "toolchain file")
+        set(PKG_CONFIG_EXECUTABLE "${DEVKITPRO}/portlibs/switch/bin/aarch64-none-elf-pkg-config")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++17 -O0")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O0")
+        add_definitions(-D__SWITCH__)
+    else()
+        message(FATAL_ERROR "Please define DEVKITPRO to point to your SDK path!")
+    endif()
+endif()
+
 project(openrct2 CXX)
+
+if (SWITCH_BUILD)
+    set(SHORT_NAME openrct2)
+    set(SWITCH_VERSION 1.01)
+endif()
 
 include(cmake/platform.cmake)
 
@@ -40,6 +59,16 @@ option(DISABLE_HTTP_TWITCH "Disable HTTP and Twitch support.")
 option(DISABLE_NETWORK "Disable multiplayer functionality. Mainly for testing.")
 option(DISABLE_TTF "Disable support for TTF provided by freetype2.")
 option(ENABLE_LIGHTFX "Enable lighting effects." ON)
+
+if (SWITCH_BUILD)
+    set(STATIC ON)
+    set(DISABLE_HTTP_TWITCH ON)
+    set(DISABLE_HTTP ON)
+    set(DISABLE_NETWORK ON)
+    set(DISABLE_TTF ON)
+    set(ENABLE_LIGHTFX OFF)
+    set(WITH_TESTS OFF)
+endif()
 
 option(DISABLE_GUI "Don't build GUI. (Headless only.)")
 
@@ -312,3 +341,22 @@ install(FILES "distribution/linux/openrct2-scenario.desktop" DESTINATION "${CMAK
 install(FILES "distribution/linux/openrct2-uri.desktop" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 install(FILES "distribution/linux/openrct2-mimeinfo.xml" DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/mime/packages/" RENAME "openrct2.xml")
 install(DIRECTORY "distribution/man/" DESTINATION "${CMAKE_INSTALL_MANDIR}/man6" FILES_MATCHING PATTERN "*.6")
+if (SWITCH_BUILD)
+    add_custom_target(${SHORT_NAME}.nro
+        DEPENDS ${SHORT_NAME}
+        COMMAND ${DEVKITPRO}/tools/bin/nacptool --create "${SHORT_NAME}" "rsn8887" "${SWITCH_VERSION}" ${SHORT_NAME}.nacp
+        COMMAND ${DEVKITPRO}/tools/bin/elf2nro ${SHORT_NAME} ${SHORT_NAME}.nro --icon=${CMAKE_SOURCE_DIR}/resources/switchdata/icon0.jpg --nacp=${SHORT_NAME}.nacp
+    )
+    add_custom_target(${SHORT_NAME}_switch.zip
+        DEPENDS ${SHORT_NAME}.nro
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/release/
+        COMMAND rm -rf ${CMAKE_BINARY_DIR}/release/${SHORT_NAME}
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/release/${SHORT_NAME}
+        COMMAND cp -f ${CMAKE_BINARY_DIR}/${SHORT_NAME}.nro ${CMAKE_BINARY_DIR}/release/${SHORT_NAME}/${SHORT_NAME}.nro
+        COMMAND cp -rf ${CMAKE_SOURCE_DIR}/resources/switchdata/res/* ${CMAKE_BINARY_DIR}/release/${SHORT_NAME}/
+        COMMAND cd ${CMAKE_BINARY_DIR}/release/${SHORT_NAME} && unzip main.zip && rm -rf main.zip && cd ${CMAKE_BINARY_DIR}
+        COMMAND cd ${CMAKE_BINARY_DIR}/release && zip -r ../${SHORT_NAME}_${SWITCH_VERSION}_switch.zip ${SHORT_NAME} && cd ${CMAKE_BINARY_DIR}
+        COMMAND zip -d ${SHORT_NAME}_${SWITCH_VERSION}_switch.zip *.DS_Store
+        COMMAND zip -d ${SHORT_NAME}_${SWITCH_VERSION}_switch.zip *__MAC*
+    )
+endif()

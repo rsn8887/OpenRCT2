@@ -165,7 +165,11 @@ namespace Config
             model->window_snap_proximity = reader->GetInt32("window_snap_proximity", 5);
             model->window_width = reader->GetInt32("window_width", -1);
             model->default_display = reader->GetInt32("default_display", 0);
+#ifdef __SWITCH__
+            model->drawing_engine = reader->GetEnum<int32_t>("drawing_engine", DRAWING_ENGINE_SOFTWARE_WITH_HARDWARE_DISPLAY, Enum_DrawingEngine);
+#else
             model->drawing_engine = reader->GetEnum<int32_t>("drawing_engine", DRAWING_ENGINE_SOFTWARE, Enum_DrawingEngine);
+#endif
             model->uncap_fps = reader->GetBoolean("uncap_fps", false);
             model->use_vsync = reader->GetBoolean("use_vsync", true);
             model->virtual_floor_style = reader->GetEnum<int32_t>(
@@ -657,7 +661,7 @@ namespace Config
      */
     static std::string FindRCT2Path()
     {
-        log_verbose("config_find_rct2_path(...)");
+       log_verbose("config_find_rct2_path(...)");
 
         static constexpr const utf8* searchLocations[] = {
             R"(C:\Program Files\Steam\steamapps\common\Rollercoaster Tycoon 2)",

@@ -84,9 +84,16 @@ public:
         if (_useVsync != vsync)
         {
             _useVsync = vsync;
+#ifdef __SWITCH__
+            if (vsync)
+                SDL_GL_SetSwapInterval(1);
+            else
+                SDL_GL_SetSwapInterval(0);
+#else
             SDL_DestroyRenderer(_sdlRenderer);
             Initialise();
             Resize(_uiContext->GetWidth(), _uiContext->GetHeight());
+#endif
         }
     }
 
@@ -253,6 +260,20 @@ private:
             OverlayPreRenderCheck();
         }
 
+#ifdef __SWITCH__
+        SDL_Rect pointer_dst;
+        int hot_x;
+        int hot_y;
+        int w;
+        int h;
+        GetContext()->GetUiContext()->GetCursorHotspotAndSize(&hot_x, &hot_y, &w, &h);
+        context_get_cursor_position(&(pointer_dst.x), &(pointer_dst.y));
+        pointer_dst.x -= hot_x;
+        pointer_dst.y -= hot_y;        
+        SDL_Texture* pointer_tex = GetContext()->GetUiContext()->GetCursorTexture();
+        if (pointer_tex)
+            SDL_RenderCopy(_sdlRenderer, pointer_tex, nullptr, &pointer_dst);
+#endif
         SDL_RenderPresent(_sdlRenderer);
 
         if (isSteamOverlayActive && gConfigGeneral.steam_overlay_pause)

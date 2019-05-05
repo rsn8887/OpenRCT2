@@ -477,7 +477,7 @@ char* safe_strcat_path(char* destination, const char* source, size_t size)
     return safe_strcat(destination, source, size);
 }
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__SWITCH__)
 char* strcasestr(const char* haystack, const char* needle)
 {
     const char* p1 = haystack;

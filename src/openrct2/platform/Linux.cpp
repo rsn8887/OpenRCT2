@@ -11,7 +11,7 @@
 
 // Despite the name, this file contains support for more OSs besides Linux, provided the necessary ifdefs remain small.
 // Otherwise, they should be spun off into their own files.
-#if (defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__)) && !defined(__ANDROID__)
+#if (defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__SWITCH__)) && !defined(__ANDROID__)
 
 #    ifdef __FreeBSD__
 #        include <sys/sysctl.h>
@@ -21,7 +21,9 @@
 
 #    include <cstring>
 #    include <ctype.h>
+#ifndef __SWITCH__
 #    include <dlfcn.h>
+#endif
 #    include <errno.h>
 #    ifndef NO_TTF
 #        include <fontconfig/fontconfig.h>
@@ -145,6 +147,9 @@ uint8_t platform_get_locale_measurement_format()
 
 bool platform_get_steam_path(utf8* outPath, size_t outSize)
 {
+#ifdef __SWITCH__
+    return false;
+#endif
     const char* steamRoot = getenv("STEAMROOT");
     if (steamRoot != nullptr)
     {

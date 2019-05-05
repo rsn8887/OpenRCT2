@@ -21,6 +21,10 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#ifdef __SWITCH__
+#include <unicode/uconfig.h>
+#include <unicode/platform.h>
+#endif
 #ifndef _WIN32
 #    include <unicode/ubidi.h>
 #    include <unicode/unistr.h>

@@ -35,6 +35,21 @@ CURSOR_ID CursorRepository::GetCurrentCursor()
     return _currentCursor;
 }
 
+#ifdef __SWITCH__
+SDL_Texture* CursorRepository::GetCurrentCursorTexture()
+{
+    return _currentCursorTexture;
+}
+
+void CursorRepository::GetCurrentCursorHotspotAndSize(int* hot_x, int* hot_y, int* w, int* h)
+{
+    *hot_x = _currentCursorHotSpotX;
+    *hot_y = _currentCursorHotSpotY;
+    *w = _currentCursorWidth;
+    *h = _currentCursorHeight;
+}
+#endif
+
 void CursorRepository::SetCurrentCursor(CURSOR_ID cursorId)
 {
     if (_currentCursor != cursorId)
@@ -42,6 +57,13 @@ void CursorRepository::SetCurrentCursor(CURSOR_ID cursorId)
         SDL_Cursor* cursor = _scaledCursors.at(_currentCursorScale).getScaledCursor(cursorId);
         SDL_SetCursor(cursor);
         _currentCursor = cursorId;
+#ifdef __SWITCH__
+        _currentCursorTexture = _scaledCursors.at(_currentCursorScale).getScaledCursorTexture(cursorId);
+        _currentCursorHotSpotX = (GetCursorData(cursorId)->HotSpot.X) * (int)round(_currentCursorScale);
+        _currentCursorHotSpotY = (GetCursorData(cursorId)->HotSpot.Y) * (int)round(_currentCursorScale);
+        _currentCursorWidth = BASE_CURSOR_WIDTH * (int)round(_currentCursorScale);
+        _currentCursorHeight = BASE_CURSOR_HEIGHT * (int)round(_currentCursorScale);
+#endif
     }
 }
 
@@ -107,6 +129,54 @@ SDL_Cursor* CursorRepository::Create(const CursorData* cursorInfo, uint8_t scale
     return cursor;
 }
 
+#ifdef __SWITCH__
+SDL_Texture* CursorRepository::CreateTexture(const CursorData* cursorInfo, uint8_t scale)
+{
+
+    auto integer_scale = (int)round(scale);
+    auto data = scaleDataArray(cursorInfo->Data, CURSOR_BIT_WIDTH, CURSOR_HEIGHT, static_cast<size_t>(integer_scale));
+    auto mask = scaleDataArray(cursorInfo->Mask, CURSOR_BIT_WIDTH, CURSOR_HEIGHT, static_cast<size_t>(integer_scale));
+
+    int h = BASE_CURSOR_HEIGHT * integer_scale;
+    int w = BASE_CURSOR_WIDTH * integer_scale;
+    
+    SDL_Window* window = SDL_GL_GetCurrentWindow();
+    SDL_Renderer* renderer = SDL_GetRenderer(window);
+    SDL_Texture* tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, w, h);
+
+    uint32_t pixels[h * w];
+
+    for (int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < w; j++)
+        {
+            if (getBit(data, i, j, w))
+            {
+                pixels[i * w + j] =  0xFF000000; //black
+            }
+            else
+            {
+                if (getBit(mask, i, j, w))
+                {
+                    pixels[i * w + j] = 0xFFFFFFFF; //white
+                }
+                else
+                {
+                    pixels[i * w + j] = 0x00000000; //transparent
+                }
+            }
+        }
+    }
+    SDL_UpdateTexture(tex, NULL, pixels, w * 4);
+    SDL_SetTextureBlendMode(tex, SDL_BLENDMODE_BLEND);
+
+    free(data);
+    free(mask);
+
+    return tex;
+}
+#endif
+
 void CursorRepository::SetCursorScale(uint8_t cursorScale)
 {
     if (cursorScale > 0.0)
@@ -132,6 +202,13 @@ void CursorRepository::GenerateScaledCursorSetHolder(uint8_t scale)
                     return this->Create(GetCursorData(cursorId), scale);
             }
         };
+#ifdef __SWITCH__
+        std::function<SDL_Texture*(CURSOR_ID)> textureGenerator = [this, scale](CURSOR_ID cursorId) {
+            return this->CreateTexture(GetCursorData(cursorId), scale);
+        };
+        _scaledCursors.emplace(std::piecewise_construct, std::make_tuple(scale), std::make_tuple(cursorGenerator, textureGenerator));
+#else
         _scaledCursors.emplace(scale, cursorGenerator);
+#endif
     }
 }

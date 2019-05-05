@@ -11,6 +11,10 @@
 #include "UiContext.h"
 #include "WindowManager.h"
 
+#ifdef __SWITCH__
+struct SDL_Texture;
+#endif
+
 using namespace OpenRCT2::Drawing;
 
 namespace OpenRCT2::Ui
@@ -107,6 +111,15 @@ namespace OpenRCT2::Ui
         {
             return CURSOR_ARROW;
         }
+#ifdef __SWITCH__
+        void GetCursorHotspotAndSize(int* hot_x, int* hot_y, int* w, int* h) override
+        {
+        }
+        SDL_Texture* GetCursorTexture() override
+        {
+            return nullptr;
+        }
+#endif
         void SetCursor(CURSOR_ID /*cursor*/) override
         {
         }

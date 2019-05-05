@@ -451,8 +451,7 @@ private:
                 CloseParkSpecificWindows();
                 context_load_park_from_stream(stream);
             }
-            else
-            {
+            else {
                 std::string extension = Path::GetExtension(hintPath);
                 bool isScenario = ParkImporter::ExtensionIsScenario(hintPath);
                 auto parkImporter = ParkImporter::Create(hintPath);

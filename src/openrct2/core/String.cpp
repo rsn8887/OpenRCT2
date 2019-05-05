@@ -18,6 +18,13 @@
 #include <stdexcept>
 #include <vector>
 #ifndef _WIN32
+#ifdef __SWITCH__
+#include <memory>
+#include <cstddef>
+#include <wctype.h>
+#include <unicode/uconfig.h>
+#include <unicode/platform.h>
+#endif
 #    include <unicode/ucnv.h>
 #    include <unicode/unistr.h>
 #    include <unicode/utypes.h>

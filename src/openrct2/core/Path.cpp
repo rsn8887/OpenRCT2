@@ -187,6 +187,10 @@ namespace Path
             return buffer;
         }
 #else
+#ifdef __SWITCH__
+         String::Set(buffer, bufferSize, relativePath);
+         return buffer;
+#else
         utf8* absolutePath = realpath(relativePath, nullptr);
         if (absolutePath == nullptr)
         {
@@ -198,6 +202,7 @@ namespace Path
             Memory::Free(absolutePath);
             return buffer;
         }
+#endif
 #endif
     }
 
@@ -215,7 +220,7 @@ namespace Path
     bool Equals(const utf8* a, const utf8* b)
     {
         bool ignoreCase = false;
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__SWITCH__)
         ignoreCase = true;
 #endif
         return String::Equals(a, b, ignoreCase);
@@ -230,7 +235,7 @@ namespace Path
             // for now. We can properly resolve the casing if we ever need to.
             result = path;
         }
-#ifndef _WIN32
+#if !defined(_WIN32) && !defined(__SWITCH__)
         else
         {
             std::string fileName = Path::GetFileName(path);

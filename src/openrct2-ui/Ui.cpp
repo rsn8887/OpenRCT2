@@ -38,7 +38,20 @@ int NormalisedMain(int argc, const char** argv)
 int main(int argc, const char** argv)
 #endif
 {
+#ifdef __SWITCH__
+    int switch_argc = 6;
+    const char *switch_argv[] = { 
+        "openrct2.nro",
+        "--verbose",
+        "--user-data-path=/switch/openrct2/home/",
+        "--openrct-data-path=/switch/openrct2/main/",
+        "--rct1-data-path=/switch/openrct2/rct1/",
+        "--rct2-data-path=/switch/openrct2/rct2/",
+         NULL };
+    int runGame = cmdline_run(switch_argv, switch_argc);
+#else
     int runGame = cmdline_run(argv, argc);
+#endif    
     core_init();
     RegisterBitmapReader();
     if (runGame == 1)

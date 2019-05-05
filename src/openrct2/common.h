@@ -63,7 +63,7 @@ const constexpr auto ror64 = ror<uint64_t>;
 // Gets the name of a symbol as a C string
 #define nameof(symbol) #symbol
 
-#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
+#if defined(__unix__) || defined(__SWITCH__) || (defined(__APPLE__) && defined(__MACH__))
 #    include <unistd.h>
 #    define STUB() log_warning("Function %s at %s:%d is a stub.\n", __PRETTY_FUNCTION__, __FILE__, __LINE__)
 #    define _strcmpi _stricmp

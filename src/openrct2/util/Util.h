@@ -43,7 +43,7 @@ utf8* safe_strtrunc(utf8* text, size_t size);
 char* safe_strcpy(char* destination, const char* source, size_t num);
 char* safe_strcat(char* destination, const char* source, size_t size);
 char* safe_strcat_path(char* destination, const char* source, size_t size);
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(__SWITCH__)
 char* strcasestr(const char* haystack, const char* needle);
 #endif
 

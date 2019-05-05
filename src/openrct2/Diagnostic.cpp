@@ -18,6 +18,11 @@
 #    include <android/log.h>
 #endif
 
+#ifdef __SWITCH__
+FILE* switch_log = NULL;
+FILE* switch_err = NULL;
+#endif
+
 [[maybe_unused]] static bool _log_location_enabled = true;
 bool _log_levels[DIAGNOSTIC_LEVEL_COUNT] = { true, true, true, false, true };
 
@@ -27,8 +32,20 @@ static FILE* diagnostic_get_stream(DIAGNOSTIC_LEVEL level)
     {
         case DIAGNOSTIC_LEVEL_VERBOSE:
         case DIAGNOSTIC_LEVEL_INFORMATION:
+#ifdef __SWITCH__
+            if (!switch_log)
+                switch_log = fopen("/switch/openrct2/log.txt","w");
+            if (switch_log)
+                return switch_log;
+#endif
             return stdout;
         default:
+#ifdef __SWITCH__
+            if (!switch_err)
+                switch_err = fopen("/switch/openrct2/err.txt","w");
+            if (switch_err)
+                return switch_err;
+#endif
             return stderr;
     }
 }

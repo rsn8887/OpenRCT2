@@ -408,19 +408,34 @@ namespace OpenRCT2
 
             if (!gOpenRCT2NoGraphics)
             {
+#ifdef __SWITCH__
+                log_verbose("Calling LoadBaseGrapics()");
+#endif
                 if (!LoadBaseGraphics())
                 {
+#ifdef __SWITCH__
+                    log_verbose("LoadBaseGraphics() failed");
+#endif
                     return false;
                 }
 #ifdef __ENABLE_LIGHTFX__
                 lightfx_init();
 #endif
             }
+#ifdef __SWITCH__
+            log_verbose("LoadBaseGraphics() succeeded");
+#endif
 
             gScenarioTicks = 0;
             util_srand((uint32_t)time(nullptr));
             input_reset_place_obj_modifier();
+#ifdef __SWITCH__
+            log_verbose("Calling viewport_init_all()");
+#endif
             viewport_init_all();
+#ifdef __SWITCH__
+            log_verbose("viewport_init_all() done");
+#endif
 
             _gameState = std::make_unique<GameState>();
             _gameState->InitAll(150);

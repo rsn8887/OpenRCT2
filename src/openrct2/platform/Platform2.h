@@ -33,7 +33,7 @@ namespace Platform
     std::string GetDocsPath();
     std::string GetCurrentExecutablePath();
 
-#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__FreeBSD__)
+#if defined(__unix__) || defined(__SWITCH__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__FreeBSD__)
     std::string GetEnvironmentPath(const char* name);
     std::string GetHomePath();
 #endif

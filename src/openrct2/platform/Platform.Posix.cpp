@@ -7,7 +7,7 @@
  * OpenRCT2 is licensed under the GNU General Public License version 3.
  *****************************************************************************/
 
-#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__FreeBSD__)
+#if defined(__unix__) || defined(__SWITCH__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__FreeBSD__)
 
 #    include "../core/String.hpp"
 #    include "Platform2.h"
@@ -54,6 +54,10 @@ namespace Platform
     std::string GetHomePath()
     {
         std::string path;
+#ifdef __SWITCH__
+        path = "/switch/OpenRCT2/home/";
+        return path;
+#else
         auto pw = getpwuid(getuid());
         if (pw != nullptr)
         {
@@ -68,6 +72,7 @@ namespace Platform
             path = "/";
         }
         return path;
+#endif
     }
 
     std::string FormatShortDate(std::time_t timestamp)

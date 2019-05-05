@@ -50,6 +50,9 @@
 #if defined(__linux__) && !defined(__ANDROID__)
 #    define OPENRCT2_PLATFORM "Linux"
 #endif
+#if defined(__SWITCH__)
+#    define OPENRCT2_PLATFORM "Switch"
+#endif
 #if (defined(__APPLE__) && defined(__MACH__))
 #    define OPENRCT2_PLATFORM "macOS"
 #endif

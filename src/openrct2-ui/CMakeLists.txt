@@ -4,8 +4,26 @@ if (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR)
     message(FATAL_ERROR "Building in-source is not supported! Create a build dir and remove ${CMAKE_SOURCE_DIR}/CMakeCache.txt")
 endif ()
 
+option(SWITCH_BUILD "Build for the Nintendo Switch handheld game console." ON)
+if(SWITCH_BUILD AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+    if(DEFINED ENV{DEVKITPRO})
+        set(DEVKITPRO $ENV{DEVKITPRO})
+        set(CMAKE_TOOLCHAIN_FILE "${DEVKITPRO}/switch.cmake" CACHE PATH "toolchain file")
+        set(PKG_CONFIG_EXECUTABLE "${DEVKITPRO}/portlibs/switch/bin/aarch64-none-elf-pkg-config")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++17 -O0")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O0")
+        add_definitions(-D__SWITCH__)
+    else()
+        message(FATAL_ERROR "Please define DEVKITPRO to point to your SDK path!")
+    endif()
+endif()
+
 # Options
 option(DISABLE_OPENGL "Disable OpenGL support.")
+
+if(SWITCH_BUILD)
+    set(DISABLE_OPENGL ON)
+endif()
 
 # Third party libraries
 if (MSVC)

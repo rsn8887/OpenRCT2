@@ -7,7 +7,7 @@
  * OpenRCT2 is licensed under the GNU General Public License version 3.
  *****************************************************************************/
 
-#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__FreeBSD__)
+#if defined(__unix__) || defined(__SWITCH__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__FreeBSD__)
 
 #    include <cstring>
 #    include <ctype.h>
@@ -181,9 +181,13 @@ bool platform_original_rct1_data_exists(const utf8* path)
 // "a vaporware GNU extension".
 static mode_t openrct2_getumask()
 {
+#ifdef __SWITCH__
+    return 0777;
+#else
     mode_t mask = umask(0);
     umask(mask);
     return 0777 & ~mask; // Keep in mind 0777 is octal
+#endif
 }
 
 bool platform_ensure_directory_exists(const utf8* path)
@@ -203,8 +207,14 @@ bool platform_ensure_directory_exists(const utf8* path)
             log_verbose("mkdir(%s)", buffer);
             if (mkdir(buffer, mask) != 0)
             {
+#ifdef __SWITCH__
+                if (errno != EEXIST && errno != 1026)
+                {
+                    errno = 0;
+#else
                 if (errno != EEXIST)
                 {
+#endif
                     return false;
                 }
             }
@@ -217,8 +227,14 @@ bool platform_ensure_directory_exists(const utf8* path)
     log_verbose("mkdir(%s)", buffer);
     if (mkdir(buffer, mask) != 0)
     {
+#ifdef __SWITCH__
+        if (errno != EEXIST && errno != 1026)
+        {
+            errno = 0;
+#else
         if (errno != EEXIST)
         {
+#endif
             return false;
         }
     }
@@ -302,7 +318,13 @@ utf8* platform_get_absolute_path(const utf8* relative_path, const utf8* base_pat
     {
         safe_strcpy(path, base_path, MAX_PATH);
     }
+#ifdef __SWITCH__
+    utf8* returnpath = (utf8*)malloc(sizeof(utf8) * MAX_PATH);
+    safe_strcpy(returnpath, path, MAX_PATH);
+    return returnpath;
+#else
     return realpath(path, NULL);
+#endif
 }
 
 bool platform_lock_single_instance()
@@ -368,8 +390,14 @@ bool platform_file_copy(const utf8* srcPath, const utf8* dstPath, bool overwrite
 
     if (dstFile == nullptr)
     {
+#ifdef __SWITCH__
+        if (errno == EEXIST || errno == 1026)
+        {
+            errno = 0;
+#else
         if (errno == EEXIST)
         {
+#endif
             log_warning("platform_file_copy: Not overwriting %s, because overwrite flag == false", dstPath);
             return false;
         }
@@ -488,6 +516,9 @@ datetime64 platform_get_datetime_now_utc()
 
 utf8* platform_get_username()
 {
+#ifdef __SWITCH__
+    return nullptr;
+#endif
     struct passwd* pw = getpwuid(getuid());
 
     if (pw)
@@ -502,11 +533,15 @@ utf8* platform_get_username()
 
 bool platform_process_is_elevated()
 {
+#ifdef __SWITCH__
+    return false;
+#else
 #    ifndef __EMSCRIPTEN__
     return (geteuid() == 0);
 #    else
     return false;
 #    endif // __EMSCRIPTEN__
+#endif
 }
 
 std::string platform_get_rct1_steam_dir()

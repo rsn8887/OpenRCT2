@@ -150,6 +150,9 @@ public:
 
     void SetFullscreenMode(FULLSCREEN_MODE mode) override
     {
+#ifdef __SWITCH__
+        return;
+#endif
         static constexpr const int32_t SDLFSFlags[] = { 0, SDL_WINDOW_FULLSCREEN, SDL_WINDOW_FULLSCREEN_DESKTOP };
         uint32_t windowFlags = SDLFSFlags[(int32_t)mode];
 
@@ -223,6 +226,18 @@ public:
     {
         return _cursorRepository.GetCurrentCursor();
     }
+
+#ifdef __SWITCH__
+    SDL_Texture* GetCursorTexture() override
+    {
+        return _cursorRepository.GetCurrentCursorTexture();
+    }
+
+    void GetCursorHotspotAndSize(int* hot_x, int* hot_y, int* w, int* h) override
+    {
+        _cursorRepository.GetCurrentCursorHotspotAndSize(hot_x, hot_y, w, h);
+    }
+#endif
 
     void SetCursor(CURSOR_ID cursor) override
     {
@@ -312,6 +327,7 @@ public:
                     context_quit();
                     break;
                 case SDL_WINDOWEVENT:
+#ifndef __SWITCH__
                     // HACK: Fix #2158, OpenRCT2 does not draw if it does not think that the window is
                     //                  visible - due a bug in SDL 2.0.3 this hack is required if the
                     //                  window is maximised, minimised and then restored again.
@@ -328,7 +344,7 @@ public:
                             SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
                         }
                     }
-
+#endif
                     if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
                     {
                         OnResize(e.window.data1, e.window.data2);
@@ -639,13 +655,16 @@ private:
             height = 480;
 
         // Create window in window first rather than fullscreen so we have the display the window is on first
+#ifdef __SWITCH__
+        _window = SDL_CreateWindow(OPENRCT2_NAME, 0, 0, width, height, 0);
+#else
         uint32_t flags = SDL_WINDOW_RESIZABLE;
         if (gConfigGeneral.drawing_engine == DRAWING_ENGINE_OPENGL)
         {
             flags |= SDL_WINDOW_OPENGL;
         }
-
         _window = SDL_CreateWindow(OPENRCT2_NAME, x, y, width, height, flags);
+#endif
         if (_window == nullptr)
         {
             SDLException::Throw("SDL_CreateWindow(...)");

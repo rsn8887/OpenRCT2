@@ -9,6 +9,10 @@
 
 #pragma once
 
+#ifdef __SWITCH__
+struct SDL_Texture;
+#endif
+
 #include "../Context.h"
 #include "../common.h"
 #include "../interface/Cursors.h"
@@ -117,6 +121,10 @@ namespace OpenRCT2
             // Input
             virtual const CursorState* GetCursorState() abstract;
             virtual CURSOR_ID GetCursor() abstract;
+#ifdef __SWITCH__
+            virtual void GetCursorHotspotAndSize(int* hot_x, int* hot_y, int* w, int* h) abstract;
+            virtual SDL_Texture* GetCursorTexture() abstract;
+#endif            
             virtual void SetCursor(CURSOR_ID cursor) abstract;
             virtual void SetCursorScale(uint8_t scale) abstract;
             virtual void SetCursorVisible(bool value) abstract;

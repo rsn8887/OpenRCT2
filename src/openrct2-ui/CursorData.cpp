@@ -621,11 +621,19 @@ namespace OpenRCT2::Ui
 
     static constexpr const CursorData * RawCursorData[] =
     {
+#ifdef __SWITCH__
+        &DiagonalArrowCursorData,    // CURSOR_ARROW
+#else
         nullptr,                    // CURSOR_ARROW
+#endif
         &BlankCursorData,           // CURSOR_BLANK
         &UpArrowCursorData,         // CURSOR_UP_ARROW
         &UpDownArrowCursorData,     // CURSOR_UP_DOWN_ARROW
+#ifdef __SWITCH__
+        &DiagonalArrowCursorData,    // CURSOR_HAND_POINT
+#else
         nullptr,                    // CURSOR_HAND_POINT
+#endif
         &ZZZCursorData,             // CURSOR_ZZZ
         &DiagonalArrowCursorData,   // CURSOR_DIAGONAL_ARROWS
         &PickerArrowCursorData,     // CURSOR_PICKER

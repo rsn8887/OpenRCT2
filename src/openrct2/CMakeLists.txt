@@ -83,6 +83,20 @@ else ()
     message("Google benchmark not found, disabling support")
 endif ()
 
+option(SWITCH_BUILD "Build for the Nintendo Switch handheld game console." ON)
+if(SWITCH_BUILD)
+    if(DEFINED ENV{DEVKITPRO})
+        set(DEVKITPRO $ENV{DEVKITPRO})
+        set(CMAKE_TOOLCHAIN_FILE "${DEVKITPRO}/switch.cmake" CACHE PATH "toolchain file")
+        set(PKG_CONFIG_EXECUTABLE "${DEVKITPRO}/portlibs/switch/bin/aarch64-none-elf-pkg-config")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++17 -O0")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O0")
+        add_definitions(-D__SWITCH__)
+    else()
+        message(FATAL_ERROR "Please define DEVKITPRO to point to your SDK path!")
+    endif()
+endif()
+
 # Third party libraries
 if (MSVC)
     find_package(jansson 2.5 REQUIRED)
@@ -142,7 +156,7 @@ if (NOT MINGW AND NOT MSVC)
     endif ()
 endif ()
 
-if (NOT APPLE AND NOT MINGW AND NOT MSVC)
+if (NOT APPLE AND NOT MINGW AND NOT MSVC AND NOT SWITCH_BUILD)
     # This is ugly hack to work around https://bugs.launchpad.net/ubuntu/+source/gcc-5/+bug/1568899.
     # Once C++17 is enabled (and thus old compilers are no longer supported, this needs to be gone.
     # We cannot simply detect the _compiler_ version, as the bug exists with the C++ _library_

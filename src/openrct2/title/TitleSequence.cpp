@@ -49,7 +49,6 @@ TitleSequence* LoadTitleSequence(const utf8* path)
     std::vector<uint8_t> script;
     std::vector<utf8*> saves;
     bool isZip;
-
     log_verbose("Loading title sequence: %s", path);
 
     const utf8* ext = Path::GetExtension(path);

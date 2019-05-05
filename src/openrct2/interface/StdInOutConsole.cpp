@@ -9,22 +9,29 @@
 
 #include "../OpenRCT2.h"
 #include "../platform/Platform2.h"
+#ifndef __SWITCH__
 #include "../thirdparty/linenoise.hpp"
+#endif
 #include "InteractiveConsole.h"
 
 void StdInOutConsole::Start()
 {
     std::thread replThread([this]() -> void {
+#ifndef __SWITCH__
         linenoise::SetMultiLine(true);
         linenoise::SetHistoryMaxLen(32);
-
+#endif
         std::string prompt = "\033[32mopenrct2 $\x1b[0m ";
         bool lastPromptQuit = false;
         while (true)
         {
             std::string line;
             std::string left = prompt;
+#ifdef __SWITCH__
+            int quit = 0;
+#else
             auto quit = linenoise::Readline(left.c_str(), line);
+#endif
             if (quit)
             {
                 if (lastPromptQuit)
@@ -41,7 +48,9 @@ void StdInOutConsole::Start()
             else
             {
                 lastPromptQuit = false;
+#ifndef __SWITCH__
                 linenoise::AddHistory(line.c_str());
+#endif
                 Eval(line).wait();
             }
         }
@@ -77,7 +86,9 @@ void StdInOutConsole::ProcessEvalQueue()
 
 void StdInOutConsole::Clear()
 {
+#ifndef __SWITCH__
     linenoise::linenoiseClearScreen();
+#endif
 }
 
 void StdInOutConsole::Close()

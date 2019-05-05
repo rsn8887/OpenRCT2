@@ -14,7 +14,7 @@
 #include <string>
 #include <vector>
 
-#if defined(__unix__)
+#if defined(__unix__) || defined(__SWITCH__)
 #    include <sys/mman.h>
 #    include <unistd.h>
 #endif // defined(__unix__)
@@ -321,7 +321,7 @@ static bool openrct2_setup_rct2_segment()
     // in some configurations err and len may be unused
     [[maybe_unused]] int len = 0x01429000 - 0x8a4000; // 0xB85000, 12079104 bytes or around 11.5MB
     [[maybe_unused]] int err = 0;
-#if defined(__unix__)
+#if defined(__unix__) || defined(__SWITCH__)
     int pageSize = getpagesize();
     int numPages = (len + pageSize - 1) / pageSize;
     unsigned char* dummy = (unsigned char*)malloc(numPages);

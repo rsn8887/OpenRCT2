@@ -7,11 +7,14 @@
  * OpenRCT2 is licensed under the GNU General Public License version 3.
  *****************************************************************************/
 
-#if defined(__FreeBSD__) || defined(__OpenBSD__) || (defined(__linux__) && !defined(__ANDROID__))
+#if defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__SWITCH__) || (defined(__linux__) && !defined(__ANDROID__))
 
 #    include <limits.h>
 #    include <pwd.h>
 #    include <vector>
+#ifdef __SWITCH__
+#include <cstring>
+#endif
 #    if defined(__FreeBSD__)
 #        include <stddef.h>
 #        include <sys/param.h>
@@ -140,6 +143,10 @@ namespace Platform
         // There is no way to get the path name of a running executable.
         // If you are not using the port or package, you may have to change this line!
         strlcpy(exePath, "/usr/local/bin/", sizeof(exePath));
+#    elif defined(__SWITCH__)
+        // There is no way to get the path name of a running executable.
+        // If you are not using the port or package, you may have to change this line!
+        strcpy(exePath, "/switch/openRCT2/");
 #    else
 #        error "Platform does not support full path exe retrieval"
 #    endif

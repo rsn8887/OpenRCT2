@@ -216,7 +216,11 @@ private:
 
             auto reportProgress = [&]() {
                 const size_t completed = processed;
+#ifdef __SWITCH__
+                Console::WriteLine("File %5zu of %zu, done %3d%%", completed, totalCount, completed * 100 / totalCount);
+#else
                 Console::WriteFormat("File %5zu of %zu, done %3d%%\r", completed, totalCount, completed * 100 / totalCount);
+#endif
             };
 
             for (size_t rangeStart = 0; rangeStart < totalCount; rangeStart += stepSize)
