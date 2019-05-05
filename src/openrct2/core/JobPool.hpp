@@ -49,7 +49,7 @@ public:
     JobPool(size_t maxThreads = 255)
     {
 #ifdef __SWITCH__
-        maxThreads = 1;
+        maxThreads = 4;
 #else
         maxThreads = std::min<size_t>(maxThreads, std::thread::hardware_concurrency());
 #endif
