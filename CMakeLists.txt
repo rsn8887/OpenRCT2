@@ -361,14 +361,17 @@ if (SWITCH_BUILD)
     )
     add_custom_target(${SHORT_NAME}_switch.zip
         DEPENDS ${SHORT_NAME}.nro
+        COMMAND rm -rf ${CMAKE_BINARY_DIR}/${SHORT_NAME}_${SWITCH_VERSION}_switch.zip
         COMMAND mkdir -p ${CMAKE_BINARY_DIR}/release/
         COMMAND rm -rf ${CMAKE_BINARY_DIR}/release/${SHORT_NAME}
         COMMAND mkdir -p ${CMAKE_BINARY_DIR}/release/${SHORT_NAME}
+        COMMAND rm -rf ${CMAKE_BINARY_DIR}/release/${SHORT_NAME}/main
+        COMMAND mkdir -p ${CMAKE_BINARY_DIR}/release/${SHORT_NAME}/main
         COMMAND cp -f ${CMAKE_BINARY_DIR}/${SHORT_NAME}.nro ${CMAKE_BINARY_DIR}/release/${SHORT_NAME}/${SHORT_NAME}.nro
         COMMAND cp -rf ${CMAKE_SOURCE_DIR}/resources/switchdata/res/* ${CMAKE_BINARY_DIR}/release/${SHORT_NAME}/
-        COMMAND cd ${CMAKE_BINARY_DIR}/release/${SHORT_NAME} && unzip main.zip && rm -rf main.zip && cd ${CMAKE_BINARY_DIR}
+        COMMAND cd ${CMAKE_BINARY_DIR}/release/${SHORT_NAME}/main && unzip ../main.zip && rm -rf ../main.zip && cd ${CMAKE_BINARY_DIR}
         COMMAND cd ${CMAKE_BINARY_DIR}/release && zip -r ../${SHORT_NAME}_${SWITCH_VERSION}_switch.zip ${SHORT_NAME} && cd ${CMAKE_BINARY_DIR}
-        COMMAND zip -d ${SHORT_NAME}_${SWITCH_VERSION}_switch.zip *.DS_Store
-        COMMAND zip -d ${SHORT_NAME}_${SWITCH_VERSION}_switch.zip *__MAC*
+        COMMAND zip -d ${CMAKE_BINARY_DIR}/${SHORT_NAME}_${SWITCH_VERSION}_switch.zip *.DS_Store
+        COMMAND zip -d ${CMAKE_BINARY_DIR}/${SHORT_NAME}_${SWITCH_VERSION}_switch.zip *__MAC*
     )
 endif()
