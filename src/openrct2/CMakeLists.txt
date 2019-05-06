@@ -89,8 +89,21 @@ if(SWITCH_BUILD)
         set(DEVKITPRO $ENV{DEVKITPRO})
         set(CMAKE_TOOLCHAIN_FILE "${DEVKITPRO}/switch.cmake" CACHE PATH "toolchain file")
         set(PKG_CONFIG_EXECUTABLE "${DEVKITPRO}/portlibs/switch/bin/aarch64-none-elf-pkg-config")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++17 -O0")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O0")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
+            -march=armv8-a+crc+crypto \
+            -mtune=cortex-a57 \
+            -mtp=soft \
+            -fPIC \
+            -ftls-model=local-exec \
+            -O2 \
+            -ffunction-sections \
+            -fdata-sections \
+            -std=c++17 \
+            -O0 \
+        ")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+            ${CMAKE_C_FLAGS} \
+        ")
         add_definitions(-D__SWITCH__)
     else()
         message(FATAL_ERROR "Please define DEVKITPRO to point to your SDK path!")

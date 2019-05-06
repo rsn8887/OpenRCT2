@@ -10,8 +10,21 @@ if(SWITCH_BUILD AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
         set(DEVKITPRO $ENV{DEVKITPRO})
         set(CMAKE_TOOLCHAIN_FILE "${DEVKITPRO}/switch.cmake" CACHE PATH "toolchain file")
         set(PKG_CONFIG_EXECUTABLE "${DEVKITPRO}/portlibs/switch/bin/aarch64-none-elf-pkg-config")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c++17 -O0")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O0")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} \
+            -march=armv8-a+crc+crypto \
+            -mtune=cortex-a57 \
+            -mtp=soft \
+            -fPIC \
+            -ftls-model=local-exec \
+            -O2 \
+            -ffunction-sections \
+            -fdata-sections \
+            -std=c++17 \
+            -O0 \
+        ")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} \
+            ${CMAKE_C_FLAGS} \
+        ")
         add_definitions(-D__SWITCH__)
     else()
         message(FATAL_ERROR "Please define DEVKITPRO to point to your SDK path!")
@@ -22,7 +35,7 @@ endif()
 option(DISABLE_OPENGL "Disable OpenGL support.")
 
 if(SWITCH_BUILD)
-    set(DISABLE_OPENGL ON)
+    set(DISABLE_OPENGL OFF)
 endif()
 
 # Third party libraries
@@ -39,7 +52,7 @@ if (NOT DISABLE_OPENGL)
     # GL doesn't work nicely with macOS, while find_package doesn't work with multiarch on Ubuntu.
     if (APPLE)
         find_package(OpenGL REQUIRED)
-    elseif (NOT WIN32)
+    elseif (NOT WIN32 AND NOT SWITCH_BUILD)
         PKG_CHECK_MODULES(GL REQUIRED gl)
     endif ()
 endif ()
