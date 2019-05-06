@@ -211,11 +211,7 @@ namespace Config
             model->scale_quality = reader->GetEnum<int32_t>("scale_quality", SCALE_QUALITY_SMOOTH_NN, Enum_ScaleQuality);
 #endif
             model->show_fps = reader->GetBoolean("show_fps", false);
-#ifdef __SWITCH__
-            model->multithreading = reader->GetBoolean("multi_threading", true);
-#else
             model->multithreading = reader->GetBoolean("multi_threading", false);
-#endif
             model->trap_cursor = reader->GetBoolean("trap_cursor", false);
             model->auto_open_shops = reader->GetBoolean("auto_open_shops", false);
             model->scenario_select_mode = reader->GetInt32("scenario_select_mode", SCENARIO_SELECT_MODE_ORIGIN);
