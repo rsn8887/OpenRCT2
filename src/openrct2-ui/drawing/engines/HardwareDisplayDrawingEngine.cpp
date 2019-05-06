@@ -255,7 +255,7 @@ private:
             if (gConfigGeneral.scale_quality == SCALE_QUALITY_LINEAR) {
                 SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
             }
-            SDL_Rect destrect = {0, 0, 960, 540};
+            SDL_Rect destrect = {0, 0, (int32_t)_width, (int32_t)_height};
             SDL_RenderCopy(_sdlRenderer, _screenTexture, nullptr, &destrect);
 #else
             SDL_RenderCopy(_sdlRenderer, _screenTexture, nullptr, nullptr);
