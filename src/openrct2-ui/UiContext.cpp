@@ -102,7 +102,10 @@ public:
         {
             SDLException::Throw("SDL_Init(SDL_INIT_VIDEO)");
         }
+#ifndef __SWITCH__
+        // on Switch, need to create cursor textures later, once we have a renderer
         _cursorRepository.LoadCursors();
+#endif
         _keyboardShortcuts.Reset();
         _keyboardShortcuts.Load();
     }
@@ -682,6 +685,12 @@ private:
         SetFullscreenMode((FULLSCREEN_MODE)gConfigGeneral.fullscreen_mode);
 
         TriggerResize();
+#ifdef __SWITCH__
+        // Since on Switch, loading cursors creates the textures,
+        // and textures require a window and renderer,
+        // we need to load cursors after the window and renderer are created
+        _cursorRepository.LoadCursors();
+#endif
     }
 
     void OnResize(int32_t width, int32_t height)

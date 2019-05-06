@@ -142,6 +142,9 @@ SDL_Texture* CursorRepository::CreateTexture(const CursorData* cursorInfo, uint8
     
     SDL_Window* window = SDL_GL_GetCurrentWindow();
     SDL_Renderer* renderer = SDL_GetRenderer(window);
+    if (gConfigGeneral.scale_quality == SCALE_QUALITY_LINEAR) {
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    }
     SDL_Texture* tex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, w, h);
 
     uint32_t pixels[h * w];
@@ -150,13 +153,13 @@ SDL_Texture* CursorRepository::CreateTexture(const CursorData* cursorInfo, uint8
     {
         for (int j = 0; j < w; j++)
         {
-            if (getBit(data, i, j, w))
+            if (getBit(data, j, i, w))
             {
-                pixels[i * w + j] =  0xFF000000; //black
+                pixels[i * w + j] =  0x000000FF; //black
             }
             else
             {
-                if (getBit(mask, i, j, w))
+                if (getBit(mask, j, i, w))
                 {
                     pixels[i * w + j] = 0xFFFFFFFF; //white
                 }

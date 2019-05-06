@@ -282,10 +282,14 @@ private:
         GetContext()->GetUiContext()->GetCursorHotspotAndSize(&hot_x, &hot_y, &w, &h);
         context_get_cursor_position(&(pointer_dst.x), &(pointer_dst.y));
         pointer_dst.x -= hot_x;
-        pointer_dst.y -= hot_y;        
+        pointer_dst.y -= hot_y;
+        pointer_dst.w = w;
+        pointer_dst.h = h;
         SDL_Texture* pointer_tex = GetContext()->GetUiContext()->GetCursorTexture();
-        if (pointer_tex)
-            SDL_RenderCopy(_sdlRenderer, pointer_tex, nullptr, &pointer_dst);
+        if (gConfigGeneral.scale_quality == SCALE_QUALITY_LINEAR) {
+            SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+        }
+        SDL_RenderCopy(_sdlRenderer, pointer_tex, nullptr, &pointer_dst);
 #endif
         SDL_RenderPresent(_sdlRenderer);
 

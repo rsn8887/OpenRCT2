@@ -39,10 +39,10 @@ int main(int argc, const char** argv)
 #endif
 {
 #ifdef __SWITCH__
-    int switch_argc = 6;
+    int switch_argc = 5;
     const char *switch_argv[] = { 
         "openrct2.nro",
-        "--verbose",
+        //"--verbose",
         "--user-data-path=/switch/openrct2/home/",
         "--openrct-data-path=/switch/openrct2/main/",
         "--rct1-data-path=/switch/openrct2/rct1/",
