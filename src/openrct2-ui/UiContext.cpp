@@ -43,6 +43,11 @@
 #include <openrct2/ui/WindowManager.h>
 #include <vector>
 
+#ifdef __SWITCH__
+#include <openrct2-ui/switch_input.h>
+#include <openrct2-ui/switch_touch.h>
+#endif
+
 using namespace OpenRCT2;
 using namespace OpenRCT2::Drawing;
 using namespace OpenRCT2::Input;
@@ -102,7 +107,13 @@ public:
         {
             SDLException::Throw("SDL_Init(SDL_INIT_VIDEO)");
         }
-#ifndef __SWITCH__
+#ifdef __SWITCH__
+        // Need joystick initialization on Switch
+        if (SDL_Init(SDL_INIT_JOYSTICK) < 0)
+        {
+            SDLException::Throw("SDL_Init(SDL_INIT_JOYSTICK)");
+        }
+#else
         // on Switch, need to create cursor textures later, once we have a renderer
         _cursorRepository.LoadCursors();
 #endif
@@ -259,7 +270,12 @@ public:
 
     void GetCursorPosition(int32_t* x, int32_t* y) override
     {
+#ifdef __SWITCH__
+        *x = _cursorState.x;
+        *y = _cursorState.y;
+#else
         SDL_GetMouseState(x, y);
+#endif
     }
 
     void SetCursorPosition(int32_t x, int32_t y) override
@@ -322,7 +338,15 @@ public:
         _cursorState.old = 0;
 
         SDL_Event e;
+#ifdef __SWITCH__
+        switch_finish_simulated_mouse_clicks();
+        switch_handle_analog_sticks();
+        switch_handle_virtual_keyboard();
+        //switch_handle_repeat_keys();
+        while (switch_poll_event(&e))
+#else
         while (SDL_PollEvent(&e))
+#endif
         {
             switch (e.type)
             {
