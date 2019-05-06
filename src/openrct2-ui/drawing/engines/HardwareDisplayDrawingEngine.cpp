@@ -158,6 +158,11 @@ public:
         }
         else
         {
+#ifdef __SWITCH__
+            if (gConfigGeneral.scale_quality == SCALE_QUALITY_LINEAR) {
+                SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+            }
+#endif
             _screenTexture = SDL_CreateTexture(_sdlRenderer, pixelFormat, SDL_TEXTUREACCESS_STREAMING, width, height);
         }
 
@@ -246,7 +251,15 @@ private:
         }
         else
         {
+#ifdef __SWITCH__
+            if (gConfigGeneral.scale_quality == SCALE_QUALITY_LINEAR) {
+                SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+            }
+            SDL_Rect destrect = {0, 0, 960, 540};
+            SDL_RenderCopy(_sdlRenderer, _screenTexture, nullptr, &destrect);
+#else
             SDL_RenderCopy(_sdlRenderer, _screenTexture, nullptr, nullptr);
+#endif
         }
 
         if (gShowDirtyVisuals)

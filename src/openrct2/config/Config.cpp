@@ -161,9 +161,17 @@ namespace Config
             model->show_height_as_units = reader->GetBoolean("show_height_as_units", false);
             model->temperature_format = reader->GetEnum<int32_t>(
                 "temperature_format", platform_get_locale_temperature_format(), Enum_Temperature);
+#ifdef __SWITCH__
+            model->window_height = reader->GetInt32("window_height", 540);
+#else
             model->window_height = reader->GetInt32("window_height", -1);
+#endif
             model->window_snap_proximity = reader->GetInt32("window_snap_proximity", 5);
+#ifdef __SWITCH__
+            model->window_width = reader->GetInt32("window_width", 960);
+#else
             model->window_width = reader->GetInt32("window_width", -1);
+#endif
             model->default_display = reader->GetInt32("default_display", 0);
 #ifdef __SWITCH__
             model->drawing_engine = reader->GetEnum<int32_t>("drawing_engine", DRAWING_ENGINE_SOFTWARE_WITH_HARDWARE_DISPLAY, Enum_DrawingEngine);
@@ -197,9 +205,17 @@ namespace Config
             model->allow_loading_with_incorrect_checksum = reader->GetBoolean("allow_loading_with_incorrect_checksum", true);
             model->steam_overlay_pause = reader->GetBoolean("steam_overlay_pause", true);
             model->window_scale = reader->GetFloat("window_scale", platform_get_default_scale());
+#ifdef __SWITCH__
+            model->scale_quality = reader->GetEnum<int32_t>("scale_quality", SCALE_QUALITY_LINEAR, Enum_ScaleQuality);
+#else
             model->scale_quality = reader->GetEnum<int32_t>("scale_quality", SCALE_QUALITY_SMOOTH_NN, Enum_ScaleQuality);
+#endif
             model->show_fps = reader->GetBoolean("show_fps", false);
+#ifdef __SWITCH__
+            model->multithreading = reader->GetBoolean("multi_threading", true);
+#else
             model->multithreading = reader->GetBoolean("multi_threading", false);
+#endif
             model->trap_cursor = reader->GetBoolean("trap_cursor", false);
             model->auto_open_shops = reader->GetBoolean("auto_open_shops", false);
             model->scenario_select_mode = reader->GetInt32("scenario_select_mode", SCENARIO_SELECT_MODE_ORIGIN);
