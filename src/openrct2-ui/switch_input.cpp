@@ -11,8 +11,8 @@ enum {
     SWITCH_PAD_B        = 1,
     SWITCH_PAD_X        = 2,
     SWITCH_PAD_Y        = 3,
-    SWITCH_LSTICK       = 4,
-    SWITCH_RSTICK       = 5,
+    SWITCH_PAD_LSTICK   = 4,
+    SWITCH_PAD_RSTICK   = 5,
     SWITCH_PAD_L        = 6,
     SWITCH_PAD_R        = 7,
     SWITCH_PAD_ZL       = 8,
@@ -49,7 +49,7 @@ static SDL_Keycode map_switch_button_to_sdlkey[SWITCH_NUM_BUTTONS] =
     SDLK_LCTRL,     // SWITCH_PAD_X
     SDLK_LSHIFT,    // SWITCH_PAD_Y
     NO_MAPPING,     // SWITCH_PAD_LSTICK
-    NO_MAPPING,     // SWITCH_PAD_RSTICK
+    SDLK_c,         // SWITCH_PAD_RSTICK this triggers CRTL-ALT-C for cheat menu
     NO_MAPPING,     // SWITCH_PAD_L
     NO_MAPPING,     // SWITCH_PAD_R
     NO_MAPPING,     // SWITCH_PAD_ZL
@@ -69,7 +69,7 @@ static SDL_Scancode map_switch_button_to_sdlscancode[SWITCH_NUM_BUTTONS] =
     SDL_SCANCODE_LCTRL,     // SWITCH_PAD_X
     SDL_SCANCODE_LSHIFT,    // SWITCH_PAD_Y
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_LSTICK
-    SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_RSTICK
+    SDL_SCANCODE_C,         // SWITCH_PAD_RSTICK this triggers CRTL-ALT-C for cheat menu
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_L
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_R
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_ZL
@@ -89,7 +89,7 @@ static uint8_t map_switch_button_to_sdlmousebutton[SWITCH_NUM_BUTTONS] =
     NO_MAPPING,         // SWITCH_PAD_X
     NO_MAPPING,         // SWITCH_PAD_Y
     NO_MAPPING,         // SWITCH_PAD_LSTICK
-    NO_MAPPING,         // SWITCH_PAD_RSTICK
+    NO_MAPPING,         // SWITCH_PAD_RSTICK this triggers CRTL-ALT-C for cheat menu
     SDL_BUTTON_RIGHT,   // SWITCH_PAD_L
     SDL_BUTTON_LEFT,    // SWITCH_PAD_R
     NO_MAPPING,         // SWITCH_PAD_ZL
@@ -140,6 +140,11 @@ int switch_poll_event(SDL_Event *event)
                     case SWITCH_PAD_L: // intentional fallthrough
                         switch_button_to_sdlmouse_event(event->jbutton.button, event, SDL_MOUSEBUTTONDOWN);
                         break;
+                    case SWITCH_PAD_RSTICK:
+                        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_LCTRL, SDLK_LCTRL);
+                        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_LALT, SDLK_LALT);
+                        switch_button_to_sdlkey_event(event->jbutton.button, event, SDL_KEYDOWN);
+                        break;
                     case SWITCH_PAD_ZL:
                         fast_mouse = 1;
                         hires_dx = 0;
@@ -182,6 +187,11 @@ int switch_poll_event(SDL_Event *event)
                     case SWITCH_PAD_A:
                     case SWITCH_PAD_L: // intentional fallthrough
                         switch_button_to_sdlmouse_event(event->jbutton.button, event, SDL_MOUSEBUTTONUP);
+                        break;
+                    case SWITCH_PAD_RSTICK:
+                        switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_LCTRL, SDLK_LCTRL);
+                        switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_LALT, SDLK_LALT);
+                        switch_button_to_sdlkey_event(event->jbutton.button, event, SDL_KEYUP);
                         break;
                     case SWITCH_PAD_ZL:
                         fast_mouse = 0;
