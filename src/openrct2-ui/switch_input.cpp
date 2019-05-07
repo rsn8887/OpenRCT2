@@ -49,7 +49,7 @@ static SDL_Keycode map_switch_button_to_sdlkey[SWITCH_NUM_BUTTONS] =
     SDLK_LCTRL,     // SWITCH_PAD_X
     SDLK_LSHIFT,    // SWITCH_PAD_Y
     NO_MAPPING,     // SWITCH_PAD_LSTICK
-    SDLK_c,         // SWITCH_PAD_RSTICK this triggers CRTL-ALT-C for cheat menu
+    SDLK_LALT,      // SWITCH_PAD_RSTICK this triggers alt-ctrl-c for cheat menu
     NO_MAPPING,     // SWITCH_PAD_L
     NO_MAPPING,     // SWITCH_PAD_R
     NO_MAPPING,     // SWITCH_PAD_ZL
@@ -69,7 +69,7 @@ static SDL_Scancode map_switch_button_to_sdlscancode[SWITCH_NUM_BUTTONS] =
     SDL_SCANCODE_LCTRL,     // SWITCH_PAD_X
     SDL_SCANCODE_LSHIFT,    // SWITCH_PAD_Y
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_LSTICK
-    SDL_SCANCODE_C,         // SWITCH_PAD_RSTICK this triggers CRTL-ALT-C for cheat menu
+    SDL_SCANCODE_LALT,      // SWITCH_PAD_RSTICK this triggers alt-ctrl-c for cheat menu
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_L
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_R
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_ZL
@@ -141,9 +141,9 @@ int switch_poll_event(SDL_Event *event)
                         switch_button_to_sdlmouse_event(event->jbutton.button, event, SDL_MOUSEBUTTONDOWN);
                         break;
                     case SWITCH_PAD_RSTICK:
-                        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_LCTRL, SDLK_LCTRL);
-                        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_LALT, SDLK_LALT);
                         switch_button_to_sdlkey_event(event->jbutton.button, event, SDL_KEYDOWN);
+                        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_LCTRL, SDLK_LCTRL);
+                        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_C, SDLK_c);
                         break;
                     case SWITCH_PAD_ZL:
                         fast_mouse = 1;
@@ -189,9 +189,9 @@ int switch_poll_event(SDL_Event *event)
                         switch_button_to_sdlmouse_event(event->jbutton.button, event, SDL_MOUSEBUTTONUP);
                         break;
                     case SWITCH_PAD_RSTICK:
-                        switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_LCTRL, SDLK_LCTRL);
-                        switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_LALT, SDLK_LALT);
                         switch_button_to_sdlkey_event(event->jbutton.button, event, SDL_KEYUP);
+                        switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_C, SDLK_c);
+                        switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_LCTRL, SDLK_LCTRL);
                         break;
                     case SWITCH_PAD_ZL:
                         fast_mouse = 0;
