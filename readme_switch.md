@@ -49,6 +49,7 @@ Thanks to my supporters on Patreon: Andyways, CountDuckula, Jason Crawford, Greg
  - Dpad down = zoom in (page down key) 
  - Dpad left = close topmost window (backspace key) 
  - Dpad right = exit construction mode (escape key) 
+ - R3 (press right stick in) = open cheat menu (ctrl-alt-c)
  - Minus = toggle between three touch control modes: 
    * Touchpad style drag pointer with finger and tap to click, default: 
       * Move a single finger to move the mouse pointer. Use short tap for left click. Hold a single finger while tapping a second finger for right click. Drag with two fingers to drag and drop. 
@@ -157,6 +158,7 @@ v1.03
 
 - Map shift, ctrl, backspace and escape keys, useful to build above ground and quickly close windows
 - Make joystick pointer speed independent of fps
+- Allow opening cheat menu by pressing the right stick in
 
 v1.02
 
