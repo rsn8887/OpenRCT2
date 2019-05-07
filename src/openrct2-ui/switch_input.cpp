@@ -34,6 +34,7 @@ bool rjoy_previous_up = false;
 bool rjoy_previous_down = false;
 bool rjoy_previous_left = false;
 bool rjoy_previous_right = false;
+uint32_t last_joy_update_time = 0;
 
 static SDL_Joystick *joy = NULL;
 
@@ -47,8 +48,8 @@ static SDL_Keycode map_switch_button_to_sdlkey[SWITCH_NUM_BUTTONS] =
 {
     NO_MAPPING,     // SWITCH_PAD_A
     NO_MAPPING,     // SWITCH_PAD_B
-    SDLK_PAGEUP,    // SWITCH_PAD_X
-    SDLK_PAGEDOWN,  // SWITCH_PAD_Y
+    SDLK_LCTRL,     // SWITCH_PAD_X
+    SDLK_LSHIFT,    // SWITCH_PAD_Y
     NO_MAPPING,     // SWITCH_PAD_LSTICK
     NO_MAPPING,     // SWITCH_PAD_RSTICK
     NO_MAPPING,     // SWITCH_PAD_L
@@ -57,18 +58,18 @@ static SDL_Keycode map_switch_button_to_sdlkey[SWITCH_NUM_BUTTONS] =
     NO_MAPPING,     // SWITCH_PAD_ZR
     NO_MAPPING,     // SWITCH_PAD_PLUS
     NO_MAPPING,     // SWITCH_PAD_MINUS
-    SDLK_LEFT,      // SWITCH_PAD_LEFT
-    SDLK_UP,        // SWITCH_PAD_UP
-    SDLK_RIGHT,     // SWITCH_PAD_RIGHT
-    SDLK_DOWN       // SWITCH_PAD_DOWN
+    SDLK_BACKSPACE, // SWITCH_PAD_LEFT
+    SDLK_PAGEUP,    // SWITCH_PAD_UP
+    SDLK_ESCAPE,    // SWITCH_PAD_RIGHT
+    SDLK_PAGEDOWN   // SWITCH_PAD_DOWN
 };
 
 static SDL_Scancode map_switch_button_to_sdlscancode[SWITCH_NUM_BUTTONS] =
 {
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_A
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_B
-    SDL_SCANCODE_PAGEUP,    // SWITCH_PAD_X
-    SDL_SCANCODE_PAGEDOWN,  // SWITCH_PAD_Y
+    SDL_SCANCODE_LCTRL,     // SWITCH_PAD_X
+    SDL_SCANCODE_LSHIFT,    // SWITCH_PAD_Y
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_LSTICK
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_RSTICK
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_L
@@ -77,10 +78,10 @@ static SDL_Scancode map_switch_button_to_sdlscancode[SWITCH_NUM_BUTTONS] =
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_ZR
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_PLUS
     SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_MINUS
-    SDL_SCANCODE_LEFT,      // SWITCH_PAD_LEFT
-    SDL_SCANCODE_UP,        // SWITCH_PAD_UP
-    SDL_SCANCODE_RIGHT,     // SWITCH_PAD_RIGHT
-    SDL_SCANCODE_DOWN       // SWITCH_PAD_DOWN
+    SDL_SCANCODE_BACKSPACE, // SWITCH_PAD_LEFT
+    SDL_SCANCODE_PAGEUP,    // SWITCH_PAD_UP
+    SDL_SCANCODE_ESCAPE,    // SWITCH_PAD_RIGHT
+    SDL_SCANCODE_PAGEDOWN   // SWITCH_PAD_DOWN
 };
 
 static uint8_t map_switch_button_to_sdlmousebutton[SWITCH_NUM_BUTTONS] =
@@ -227,10 +228,26 @@ void switch_handle_analog_sticks(void)
 {
     if (!joy) {
         joy = SDL_JoystickOpen(0);
+        last_joy_update_time = SDL_GetTicks();
     }
+
     int left_x = SDL_JoystickGetAxis(joy, 0);
     int left_y = SDL_JoystickGetAxis(joy, 1);
     switch_rescale_analog(&left_x, &left_y, 2000);
+
+    // scale joystick mouse velocity so it is independent of fps (nominal fps is 40 in this game)
+    uint32_t current_time = SDL_GetTicks();
+    uint32_t delta_t = current_time - last_joy_update_time;
+
+    // catch timer overflow
+    if (delta_t > 10000000) {
+        delta_t = 25;
+    }
+
+    left_x = (left_x * delta_t) / 25;
+    left_y = (left_y * delta_t) / 25;
+    last_joy_update_time = current_time;
+
     hires_dx += left_x; // sub-pixel precision to allow slow mouse motion at speeds < 1 pixel/frame
     hires_dy += left_y;
 
@@ -290,101 +307,68 @@ void switch_handle_analog_sticks(void)
     int left = 0;
     int right = 0;
 
-    if ((right_x * right_x + right_y * right_y) > right_joy_dead_zone_squared)
-    {
-        if (right_y > 0 && right_x > 0)
-        {
+    if ((right_x * right_x + right_y * right_y) > right_joy_dead_zone_squared) {
+        if (right_y > 0 && right_x > 0) {
             // upper right quadrant
-            if (right_y > slope * right_x)
-            {
+            if (right_y > slope * right_x) {
                 up = 1;
             }
-            if (right_x > slope * right_y)
-            {
+            if (right_x > slope * right_y) {
                 right = 1;
             }
-        } else if (right_y > 0 && right_x <= 0)
-        {
+        } else if (right_y > 0 && right_x <= 0) {
             // upper left quadrant
-            if (right_y > slope * (-right_x))
-            {
+            if (right_y > slope * (-right_x)) {
                 up = 1;
             }
-            if ((-right_x) > slope * right_y)
-            {
+            if ((-right_x) > slope * right_y) {
                 left = 1;
             }
-        } else if (right_y <= 0 && right_x > 0)
-        {
+        } else if (right_y <= 0 && right_x > 0) {
             // lower right quadrant
-            if ((-right_y) > slope * right_x)
-            {
+            if ((-right_y) > slope * right_x) {
                 down = 1;
             }
-            if (right_x > slope * (-right_y))
-            {
+            if (right_x > slope * (-right_y)) {
                 right = 1;
             }
-        } else if (right_y <= 0 && right_x <= 0)
-        {
+        } else if (right_y <= 0 && right_x <= 0) {
             // lower left quadrant
-            if ((-right_y) > slope * (-right_x))
-            {
+            if ((-right_y) > slope * (-right_x)) {
                 down = 1;
             }
-            if ((-right_x) > slope * (-right_y))
-            {
+            if ((-right_x) > slope * (-right_y)) {
                 left = 1;
             }
         }
     }
 
-    if (!pressed_buttons[SWITCH_PAD_UP])
-    {
-        if (up && !rjoy_previous_up)
-        {
-            switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_UP, SDLK_UP);
-        }
-        else if (!up && rjoy_previous_up)
-        {
-            switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_UP, SDLK_UP);
-        }
+    if (up && !rjoy_previous_up) {
+        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_UP, SDLK_UP);
+    }
+    else if (!up && rjoy_previous_up) {
+        switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_UP, SDLK_UP);
     }
 
-    if (!pressed_buttons[SWITCH_PAD_DOWN])
-    {
-        if (down && !rjoy_previous_down)
-        {
-            switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_DOWN, SDLK_DOWN);
-        }
-        else if (!down && rjoy_previous_down)
-        {
-            switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_DOWN, SDLK_DOWN);
-        }
+    if (down && !rjoy_previous_down) {
+        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_DOWN, SDLK_DOWN);
+    }
+    else if (!down && rjoy_previous_down) {
+        switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_DOWN, SDLK_DOWN);
     }
 
-    if (!pressed_buttons[SWITCH_PAD_LEFT])
-    {
-        if (left && !rjoy_previous_left)
-        {
-            switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_LEFT, SDLK_LEFT);
-        }
-        else if (!left && rjoy_previous_left)
-        {
-            switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_LEFT, SDLK_LEFT);
-        }
+    if (left && !rjoy_previous_left) {
+        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_LEFT, SDLK_LEFT);
+    }
+    else if (!left && rjoy_previous_left) {
+        switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_LEFT, SDLK_LEFT);
     }
 
-    if (!pressed_buttons[SWITCH_PAD_RIGHT])
-    {
-        if (right && !rjoy_previous_right)
-        {
-            switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_RIGHT, SDLK_RIGHT);
-        }
-        else if (!right && rjoy_previous_right)
-        {
-            switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_RIGHT, SDLK_RIGHT);
-        }
+    if (right && !rjoy_previous_right) {
+        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_RIGHT, SDLK_RIGHT);
+    }
+    else if (!right && rjoy_previous_right) {
+        switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_RIGHT, SDLK_RIGHT);
     }
 
     rjoy_previous_up = up;
@@ -557,14 +541,12 @@ static void switch_create_and_push_sdlkey_event(uint32_t event_type, SDL_Scancod
     event.key.keysym.mod = 0;
     SDL_PushEvent(&event);
 
-    // Updates the state of the keys otherwise dpad/joystick scrolling doesn't work
-    if (event_type == SDL_KEYDOWN)
-    {
+    // Updates the state of the keys otherwise scrolling doesn't work
+    if (event_type == SDL_KEYDOWN) {
         const uint8_t *state = SDL_GetKeyboardState(NULL);
         const_cast<uint8_t *>(state)[scan] = 1;
     }
-    else if (event_type == SDL_KEYUP)
-    {
+    else if (event_type == SDL_KEYUP) {
         const uint8_t *state = SDL_GetKeyboardState(NULL);
         const_cast<uint8_t *>(state)[scan] = 0;
     }

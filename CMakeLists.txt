@@ -34,7 +34,7 @@ project(openrct2 CXX)
 
 if (SWITCH_BUILD)
     set(SHORT_NAME openrct2)
-    set(SWITCH_VERSION 1.02)
+    set(SWITCH_VERSION 1.03)
 endif()
 
 include(cmake/platform.cmake)
