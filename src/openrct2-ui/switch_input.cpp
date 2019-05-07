@@ -30,14 +30,12 @@ int last_mouse_x = 0;
 int last_mouse_y = 0;
 int touch_mode = TOUCH_MODE_TOUCHPAD;
 static bool can_change_touch_mode = true;
-bool rjoy_previous_up = false;
-bool rjoy_previous_down = false;
-bool rjoy_previous_left = false;
-bool rjoy_previous_right = false;
-uint32_t last_joy_update_time = 0;
-
+static bool rjoy_previous_up = false;
+static bool rjoy_previous_down = false;
+static bool rjoy_previous_left = false;
+static bool rjoy_previous_right = false;
+static uint32_t last_joy_update_time = 0;
 static SDL_Joystick *joy = NULL;
-
 static int hires_dx = 0; // sub-pixel-precision counters to allow slow pointer motion of <1 pixel per frame
 static int hires_dy = 0;
 static int vkbd_requested = 0;
@@ -108,7 +106,6 @@ static void switch_start_text_input(char *initial_text, int multiline);
 static void switch_rescale_analog(int *x, int *y, int dead);
 static void switch_button_to_sdlkey_event(int switch_button, SDL_Event *event, uint32_t event_type);
 static void switch_button_to_sdlmouse_event(int switch_button, SDL_Event *event, uint32_t event_type);
-
 static void switch_create_and_push_sdlkey_event(uint32_t event_type, SDL_Scancode scan, SDL_Keycode key);
 
 int switch_poll_event(SDL_Event *event)
