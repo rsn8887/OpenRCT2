@@ -234,7 +234,7 @@ void switch_handle_analog_sticks(void)
     hires_dx += left_x; // sub-pixel precision to allow slow mouse motion at speeds < 1 pixel/frame
     hires_dy += left_y;
 
-    int slowdown = 5120;
+    int slowdown = 6144;
 
     if (fast_mouse) {
         slowdown /= 3;
