@@ -89,7 +89,7 @@ static uint8_t map_switch_button_to_sdlmousebutton[SWITCH_NUM_BUTTONS] =
     NO_MAPPING,         // SWITCH_PAD_X
     NO_MAPPING,         // SWITCH_PAD_Y
     NO_MAPPING,         // SWITCH_PAD_LSTICK
-    NO_MAPPING,         // SWITCH_PAD_RSTICK this triggers CRTL-ALT-C for cheat menu
+    NO_MAPPING,         // SWITCH_PAD_RSTICK
     SDL_BUTTON_RIGHT,   // SWITCH_PAD_L
     SDL_BUTTON_LEFT,    // SWITCH_PAD_R
     NO_MAPPING,         // SWITCH_PAD_ZL
