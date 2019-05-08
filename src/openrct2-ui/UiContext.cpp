@@ -46,6 +46,7 @@
 #ifdef __SWITCH__
 #include <openrct2-ui/switch_input.h>
 #include <openrct2-ui/switch_touch.h>
+#include <openrct2-ui/switch_video.h>
 #endif
 
 using namespace OpenRCT2;
@@ -343,6 +344,7 @@ public:
         switch_handle_analog_sticks();
         switch_handle_virtual_keyboard();
         //switch_handle_repeat_keys();
+        switch_update_resolution(_window);
         while (switch_poll_event(&e))
 #else
         while (SDL_PollEvent(&e))
@@ -353,8 +355,8 @@ public:
                 case SDL_QUIT:
                     context_quit();
                     break;
-                case SDL_WINDOWEVENT:
 #ifndef __SWITCH__
+                case SDL_WINDOWEVENT:
                     // HACK: Fix #2158, OpenRCT2 does not draw if it does not think that the window is
                     //                  visible - due a bug in SDL 2.0.3 this hack is required if the
                     //                  window is maximised, minimised and then restored again.
@@ -371,7 +373,6 @@ public:
                             SDL_SetWindowFullscreen(_window, SDL_WINDOW_FULLSCREEN_DESKTOP);
                         }
                     }
-#endif
                     if (e.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
                     {
                         OnResize(e.window.data1, e.window.data2);
@@ -407,6 +408,7 @@ public:
                         }
                     }
                     break;
+#endif
                 case SDL_MOUSEMOTION:
                     _cursorState.x = (int32_t)(e.motion.x / gConfigGeneral.window_scale);
                     _cursorState.y = (int32_t)(e.motion.y / gConfigGeneral.window_scale);
@@ -588,7 +590,15 @@ public:
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, scaleQualityBuffer);
 
         int32_t width, height;
+#ifdef __SWITCH__
+        // on Switch, window size is always 720p handheld and 1080p docked
+        // and scaling of the game screen is done by scaling the screen texture
+        // so just report the window_width and window_height from the config.ini here
+        width = gConfigGeneral.window_width;
+        height = gConfigGeneral.window_height;
+#else
         SDL_GetWindowSize(_window, &width, &height);
+#endif
         OnResize(width, height);
     }
 
@@ -683,7 +693,10 @@ private:
 
         // Create window in window first rather than fullscreen so we have the display the window is on first
 #ifdef __SWITCH__
-        _window = SDL_CreateWindow(OPENRCT2_NAME, 0, 0, width, height, 0);
+        // on Switch, use native resolution depending on docked (1080p) or handheld (720p) mode
+        int w,h;
+        switch_get_resolution(&w, &h);
+        _window = SDL_CreateWindow(OPENRCT2_NAME, 0, 0, w, h, 0);
 #else
         uint32_t flags = SDL_WINDOW_RESIZABLE;
         if (gConfigGeneral.drawing_engine == DRAWING_ENGINE_OPENGL)
@@ -722,7 +735,10 @@ private:
         // Scale the native window size to the game's canvas size
         _width = (int32_t)(width / gConfigGeneral.window_scale);
         _height = (int32_t)(height / gConfigGeneral.window_scale);
-
+#ifdef __SWITCH__
+        // Need to know canvas size for Switch touch input etc.
+        switch_update_game_canvas_size(_width, _height);
+#endif
         drawing_engine_resize();
 
         uint32_t flags = SDL_GetWindowFlags(_window);

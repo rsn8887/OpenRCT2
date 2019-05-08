@@ -1,5 +1,5 @@
-#include "switch.h"
-#include "switch_touch.h"
+#include "openrct2-ui/switch_touch.h"
+#include "openrct2-ui/switch.h"
 #include <math.h>
 
 #define TOUCH_PORT_MAX_NUM 1

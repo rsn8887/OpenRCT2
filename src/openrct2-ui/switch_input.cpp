@@ -1,9 +1,10 @@
 #include "openrct2-ui/switch_input.h"
 #include "openrct2-ui/switch_touch.h"
+#include <openrct2-ui/switch_keyboard.h>
 #include "openrct2-ui/switch.h"
+
 #include <math.h>
 
-#include <openrct2-ui/switch_keyboard.h>
 #define NO_MAPPING 255
 
 enum {

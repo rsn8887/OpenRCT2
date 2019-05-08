@@ -238,6 +238,11 @@ private:
         }
         else
 #endif
+#ifdef __SWITCH__
+        // window size changes when switching between docked and handheld modes
+        int window_width, window_height;
+        SDL_GetWindowSize(_window, &window_width, &window_height);
+#endif
         {
             CopyBitsToTexture(_screenTexture, _bits, (int32_t)_width, (int32_t)_height, _paletteHWMapped);
         }
@@ -252,10 +257,7 @@ private:
         else
         {
 #ifdef __SWITCH__
-            if (gConfigGeneral.scale_quality == SCALE_QUALITY_LINEAR) {
-                SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-            }
-            SDL_Rect destrect = {0, 0, (int32_t)_width, (int32_t)_height};
+            SDL_Rect destrect = {0, 0, (int32_t)window_width, (int32_t)window_height};
             SDL_RenderCopy(_sdlRenderer, _screenTexture, nullptr, &destrect);
 #else
             SDL_RenderCopy(_sdlRenderer, _screenTexture, nullptr, nullptr);
@@ -281,14 +283,11 @@ private:
         int h;
         GetContext()->GetUiContext()->GetCursorHotspotAndSize(&hot_x, &hot_y, &w, &h);
         context_get_cursor_position(&(pointer_dst.x), &(pointer_dst.y));
-        pointer_dst.x -= hot_x;
-        pointer_dst.y -= hot_y;
-        pointer_dst.w = w;
-        pointer_dst.h = h;
+        pointer_dst.x = ((pointer_dst.x - hot_x) * window_width) / _width;
+        pointer_dst.y = ((pointer_dst.y - hot_y) * window_height) / _height;
+        pointer_dst.w = (w * window_width) / _width;
+        pointer_dst.h = (h * window_height) / _height;
         SDL_Texture* pointer_tex = GetContext()->GetUiContext()->GetCursorTexture();
-        if (gConfigGeneral.scale_quality == SCALE_QUALITY_LINEAR) {
-            SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-        }
         SDL_RenderCopy(_sdlRenderer, pointer_tex, nullptr, &pointer_dst);
 #endif
         SDL_RenderPresent(_sdlRenderer);

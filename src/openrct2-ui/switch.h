@@ -1,8 +1,9 @@
 #ifndef OPENRCT2_UI_SWITCH_H
 #define OPENRCT2_UI_SWITCH_H
 
-#define SWITCH_DISPLAY_WIDTH 960
-#define SWITCH_DISPLAY_HEIGHT 540
+// These widths represent the game resolution (window size set in config.ini)
+#define SWITCH_DISPLAY_WIDTH game_canvas_width
+#define SWITCH_DISPLAY_HEIGHT game_canvas_height
 
 enum {
     TOUCH_MODE_TOUCHPAD             = 0, // drag the pointer and tap-click like on a touchpad (default)
@@ -11,8 +12,10 @@ enum {
     NUM_TOUCH_MODES                 = 3
 };
 
-extern int last_mouse_x; // defined in switch_input.c
-extern int last_mouse_y; // defined in switch_input.c
-extern int touch_mode; // defined in switch_input.c
+extern int game_canvas_width; // defined in switch_video.cpp
+extern int game_canvas_height; // defined in switch_video.cpp
+extern int last_mouse_x; // defined in switch_input.cpp
+extern int last_mouse_y; // defined in switch_input.cpp
+extern int touch_mode; // defined in switch_input.cpp
 
 #endif // OPENRCT2_UI_SWITCH_H
