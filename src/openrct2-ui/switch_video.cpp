@@ -22,7 +22,7 @@ int isDocked()
     }
 }
 
-void switch_update_resolution(SDL_Window *window)
+bool switch_changed_resolution(SDL_Window *window)
 {
     int docked = isDocked();
     if ((docked && !currently_docked) || (!docked && currently_docked)) {
@@ -39,6 +39,9 @@ void switch_update_resolution(SDL_Window *window)
         if (window) {
             SDL_SetWindowSize(window, display_width, display_height);
         }
+        return true;
+    } else {
+        return false;
     }
 }
 

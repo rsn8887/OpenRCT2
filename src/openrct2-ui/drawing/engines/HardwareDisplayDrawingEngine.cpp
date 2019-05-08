@@ -21,6 +21,10 @@
 #include <openrct2/ui/UiContext.h>
 #include <vector>
 
+#ifdef __SWITCH__
+#include "openrct2-ui/switch_video.h"
+#endif
+
 using namespace OpenRCT2;
 using namespace OpenRCT2::Drawing;
 using namespace OpenRCT2::Ui;
@@ -151,18 +155,27 @@ public:
             SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
             _screenTexture = SDL_CreateTexture(_sdlRenderer, pixelFormat, SDL_TEXTUREACCESS_STREAMING, width, height);
             SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, scaleQualityBuffer);
+#ifdef __SWITCH__
+            // on Switch, it is not enough to scale by the window_scale parameter, we also have to scale to the native res
+            int canvas_height = (int32_t) (gConfigGeneral.window_height / gConfigGeneral.window_scale);
 
+            int switch_screen_width;
+            int switch_screen_height;
+            switch_get_resolution(&switch_screen_width, &switch_screen_height);
+
+            float y_scale = (float) switch_screen_height / (float) canvas_height;
+
+            uint32_t scale = std::ceil(y_scale);
+            _scaledScreenTexture = SDL_CreateTexture(
+                    _sdlRenderer, pixelFormat, SDL_TEXTUREACCESS_TARGET, width * scale, height * scale);
+#else
             uint32_t scale = std::ceil(gConfigGeneral.window_scale);
             _scaledScreenTexture = SDL_CreateTexture(
                 _sdlRenderer, pixelFormat, SDL_TEXTUREACCESS_TARGET, width * scale, height * scale);
+#endif
         }
         else
         {
-#ifdef __SWITCH__
-            if (gConfigGeneral.scale_quality == SCALE_QUALITY_LINEAR) {
-                SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-            }
-#endif
             _screenTexture = SDL_CreateTexture(_sdlRenderer, pixelFormat, SDL_TEXTUREACCESS_STREAMING, width, height);
         }
 
@@ -252,11 +265,18 @@ private:
             SDL_RenderCopy(_sdlRenderer, _screenTexture, nullptr, nullptr);
 
             SDL_SetRenderTarget(_sdlRenderer, nullptr);
+#ifdef __SWITCH__
+            //this destrect here shouldn't be needed, but otherwise the image is way too large
+            SDL_Rect destrect = {0, 0, (int32_t)window_width, (int32_t)window_height};
+            SDL_RenderCopy(_sdlRenderer, _scaledScreenTexture, nullptr, &destrect);
+#else
             SDL_RenderCopy(_sdlRenderer, _scaledScreenTexture, nullptr, nullptr);
+#endif
         }
         else
         {
 #ifdef __SWITCH__
+            //this destrect here shouldn't be needed, but otherwise the image is way too large
             SDL_Rect destrect = {0, 0, (int32_t)window_width, (int32_t)window_height};
             SDL_RenderCopy(_sdlRenderer, _screenTexture, nullptr, &destrect);
 #else
@@ -283,8 +303,16 @@ private:
         int h;
         GetContext()->GetUiContext()->GetCursorHotspotAndSize(&hot_x, &hot_y, &w, &h);
         context_get_cursor_position(&(pointer_dst.x), &(pointer_dst.y));
-        pointer_dst.x = ((pointer_dst.x - hot_x) * window_width) / _width;
-        pointer_dst.y = ((pointer_dst.y - hot_y) * window_height) / _height;
+        if (pointer_dst.x > hot_x) {
+            pointer_dst.x = ((pointer_dst.x - hot_x) * window_width) / _width;
+        } else {
+            pointer_dst.x = 0;
+        }
+        if (pointer_dst.y > hot_y) {
+            pointer_dst.y = ((pointer_dst.y - hot_y) * window_height) / _height;
+        } else {
+            pointer_dst.y = 0;
+        }
         pointer_dst.w = (w * window_width) / _width;
         pointer_dst.h = (h * window_height) / _height;
         SDL_Texture* pointer_tex = GetContext()->GetUiContext()->GetCursorTexture();

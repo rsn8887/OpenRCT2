@@ -3,6 +3,7 @@
 #include <openrct2-ui/switch_keyboard.h>
 #include "openrct2-ui/switch.h"
 
+#include <switch.h>
 #include <math.h>
 
 #define NO_MAPPING 255
@@ -35,7 +36,7 @@ static bool rjoy_previous_up = false;
 static bool rjoy_previous_down = false;
 static bool rjoy_previous_left = false;
 static bool rjoy_previous_right = false;
-static uint32_t last_joy_update_time = 0;
+static uint64_t last_joy_update_time = 0;
 static SDL_Joystick *joy = NULL;
 static int hires_dx = 0; // sub-pixel-precision counters to allow slow pointer motion of <1 pixel per frame
 static int hires_dy = 0;
@@ -232,11 +233,10 @@ void switch_handle_repeat_keys(void)
     }
 }
 
-void switch_handle_analog_sticks(void)
+void switch_handle_analog_sticks()
 {
     if (!joy) {
         joy = SDL_JoystickOpen(0);
-        last_joy_update_time = SDL_GetTicks();
     }
 
     int left_x = SDL_JoystickGetAxis(joy, 0);
@@ -244,22 +244,23 @@ void switch_handle_analog_sticks(void)
     switch_rescale_analog(&left_x, &left_y, 2000);
 
     // scale joystick mouse velocity so it is independent of fps (nominal fps is 40 in this game)
-    uint32_t current_time = SDL_GetTicks();
-    uint32_t delta_t = current_time - last_joy_update_time;
-
-    // catch timer overflow
-    if (delta_t > 10000000) {
-        delta_t = 25;
+    if (last_joy_update_time == 0) {
+        last_joy_update_time = svcGetSystemTick();
     }
-
-    left_x = (left_x * delta_t) / 25;
-    left_y = (left_y * delta_t) / 25;
+    uint64_t current_time = svcGetSystemTick();
+    uint64_t delta_t = (current_time - last_joy_update_time);
     last_joy_update_time = current_time;
+    float factor = (float) delta_t / (float) (19200 * 25);
+    if (factor > 10.0 || factor < 0.1) {
+        factor = 1.0;
+    }
+    left_x = left_x * factor;
+    left_y = left_y * factor;
 
     hires_dx += left_x; // sub-pixel precision to allow slow mouse motion at speeds < 1 pixel/frame
     hires_dy += left_y;
 
-    int slowdown = 6144;
+    int slowdown = 4096;
 
     if (fast_mouse) {
         slowdown /= 3;

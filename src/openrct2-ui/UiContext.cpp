@@ -344,7 +344,9 @@ public:
         switch_handle_analog_sticks();
         switch_handle_virtual_keyboard();
         //switch_handle_repeat_keys();
-        switch_update_resolution(_window);
+        if (switch_changed_resolution(_window)) {
+            TriggerResize();
+        }
         while (switch_poll_event(&e))
 #else
         while (SDL_PollEvent(&e))
@@ -574,8 +576,24 @@ public:
      */
     void TriggerResize() override
     {
+#ifdef __SWITCH__
+        // on Switch, the window size is always 720p handheld and 1080p docked
         char scaleQualityBuffer[4];
         _scaleQuality = gConfigGeneral.scale_quality;
+
+        int32_t scaleQuality = _scaleQuality;
+        if (_scaleQuality == SCALE_QUALITY_SMOOTH_NN)
+        {
+            scaleQuality = SCALE_QUALITY_LINEAR;
+        }
+        snprintf(scaleQualityBuffer, sizeof(scaleQualityBuffer), "%u", scaleQuality);
+        SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, scaleQualityBuffer);
+
+        OnResize(gConfigGeneral.window_width, gConfigGeneral.window_height);
+#else
+        char scaleQualityBuffer[4];
+        _scaleQuality = gConfigGeneral.scale_quality;
+
         if (gConfigGeneral.window_scale == std::floor(gConfigGeneral.window_scale))
         {
             _scaleQuality = SCALE_QUALITY_NN;
@@ -590,16 +608,9 @@ public:
         SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, scaleQualityBuffer);
 
         int32_t width, height;
-#ifdef __SWITCH__
-        // on Switch, window size is always 720p handheld and 1080p docked
-        // and scaling of the game screen is done by scaling the screen texture
-        // so just report the window_width and window_height from the config.ini here
-        width = gConfigGeneral.window_width;
-        height = gConfigGeneral.window_height;
-#else
         SDL_GetWindowSize(_window, &width, &height);
-#endif
         OnResize(width, height);
+#endif
     }
 
     void CreateWindow() override
@@ -694,6 +705,7 @@ private:
         // Create window in window first rather than fullscreen so we have the display the window is on first
 #ifdef __SWITCH__
         // on Switch, use native resolution depending on docked (1080p) or handheld (720p) mode
+        // but remember the game runs with a canvas size given by _width and _height
         int w,h;
         switch_get_resolution(&w, &h);
         _window = SDL_CreateWindow(OPENRCT2_NAME, 0, 0, w, h, 0);
@@ -737,7 +749,7 @@ private:
         _height = (int32_t)(height / gConfigGeneral.window_scale);
 #ifdef __SWITCH__
         // Need to know canvas size for Switch touch input etc.
-        switch_update_game_canvas_size(_width, _height);
+        switch_update_game_canvas_size(width, height);
 #endif
         drawing_engine_resize();
 

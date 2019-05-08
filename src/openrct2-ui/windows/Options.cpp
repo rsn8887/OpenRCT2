@@ -1692,6 +1692,7 @@ static void window_options_invalidate(rct_window* w)
                 w->disabled_widgets &= ~(1 << WIDX_STEAM_OVERLAY_PAUSE);
             }
 
+#ifndef __SWITCH__
             // Disable scaling quality dropdown when using software rendering or when using an integer scalar.
             // In the latter case, nearest neighbour rendering will be used to scale.
             if (gConfigGeneral.drawing_engine == DRAWING_ENGINE_SOFTWARE
@@ -1701,6 +1702,7 @@ static void window_options_invalidate(rct_window* w)
                 w->disabled_widgets |= (1 << WIDX_SCALE_QUALITY_DROPDOWN);
             }
             else
+#endif
             {
                 w->disabled_widgets &= ~(1 << WIDX_SCALE_QUALITY);
                 w->disabled_widgets &= ~(1 << WIDX_SCALE_QUALITY_DROPDOWN);
