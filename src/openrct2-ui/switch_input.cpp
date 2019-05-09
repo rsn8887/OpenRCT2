@@ -43,45 +43,49 @@ static int hires_dy = 0;
 static int vkbd_requested = 0;
 static int fast_mouse = 0;
 static int slow_mouse = 0;
-static int pressed_buttons[SWITCH_NUM_BUTTONS] = { 0 };
-static SDL_Keycode map_switch_button_to_sdlkey[SWITCH_NUM_BUTTONS] =
+static int holding_modifier = 0;
+static SDL_Keycode map_switch_button_to_sdlkey[SWITCH_NUM_BUTTONS][2] =
 {
-    NO_MAPPING,     // SWITCH_PAD_A
-    NO_MAPPING,     // SWITCH_PAD_B
-    SDLK_LCTRL,     // SWITCH_PAD_X
-    SDLK_LSHIFT,    // SWITCH_PAD_Y
-    NO_MAPPING,     // SWITCH_PAD_LSTICK
-    SDLK_LALT,      // SWITCH_PAD_RSTICK this triggers alt-ctrl-c for cheat menu
-    NO_MAPPING,     // SWITCH_PAD_L
-    NO_MAPPING,     // SWITCH_PAD_R
-    NO_MAPPING,     // SWITCH_PAD_ZL
-    NO_MAPPING,     // SWITCH_PAD_ZR
-    NO_MAPPING,     // SWITCH_PAD_PLUS
-    NO_MAPPING,     // SWITCH_PAD_MINUS
-    SDLK_BACKSPACE, // SWITCH_PAD_LEFT
-    SDLK_PAGEUP,    // SWITCH_PAD_UP
-    SDLK_ESCAPE,    // SWITCH_PAD_RIGHT
-    SDLK_PAGEDOWN   // SWITCH_PAD_DOWN
+    // entry 0: not holding modifier
+    // entry 1: holding modifier
+    SDLK_UNKNOWN,   SDLK_UNKNOWN,           // SWITCH_PAD_A
+    SDLK_UNKNOWN,   SDLK_UNKNOWN,           // SWITCH_PAD_B
+    SDLK_LCTRL,     SDLK_LCTRL,             // SWITCH_PAD_X
+    SDLK_LSHIFT,    SDLK_LSHIFT,            // SWITCH_PAD_Y
+    SDLK_UNKNOWN,   SDLK_UNKNOWN,           // SWITCH_PAD_LSTICK
+    SDLK_LALT,      SDLK_LALT,              // SWITCH_PAD_RSTICK this triggers alt-ctrl-c for cheat menu
+    SDLK_UNKNOWN,   SDLK_UNKNOWN,           // SWITCH_PAD_L
+    SDLK_UNKNOWN,   SDLK_UNKNOWN,           // SWITCH_PAD_R
+    SDLK_UNKNOWN,   SDLK_UNKNOWN,           // SWITCH_PAD_ZL
+    SDLK_UNKNOWN,   SDLK_UNKNOWN,           // SWITCH_PAD_ZR
+    SDLK_UNKNOWN,   SDLK_UNKNOWN,           // SWITCH_PAD_PLUS
+    SDLK_UNKNOWN,   SDLK_UNKNOWN,           // SWITCH_PAD_MINUS
+    SDLK_BACKSPACE, SDLK_z,                 // SWITCH_PAD_LEFT
+    SDLK_PAGEUP,    SDLK_PAGEUP,            // SWITCH_PAD_UP
+    SDLK_ESCAPE,    SDLK_RETURN,            // SWITCH_PAD_RIGHT
+    SDLK_PAGEDOWN,  SDLK_PAGEDOWN,          // SWITCH_PAD_DOWN
 };
 
-static SDL_Scancode map_switch_button_to_sdlscancode[SWITCH_NUM_BUTTONS] =
+static SDL_Scancode map_switch_button_to_sdlscancode[SWITCH_NUM_BUTTONS][2] =
 {
-    SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_A
-    SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_B
-    SDL_SCANCODE_LCTRL,     // SWITCH_PAD_X
-    SDL_SCANCODE_LSHIFT,    // SWITCH_PAD_Y
-    SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_LSTICK
-    SDL_SCANCODE_LALT,      // SWITCH_PAD_RSTICK this triggers alt-ctrl-c for cheat menu
-    SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_L
-    SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_R
-    SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_ZL
-    SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_ZR
-    SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_PLUS
-    SDL_SCANCODE_UNKNOWN,   // SWITCH_PAD_MINUS
-    SDL_SCANCODE_BACKSPACE, // SWITCH_PAD_LEFT
-    SDL_SCANCODE_PAGEUP,    // SWITCH_PAD_UP
-    SDL_SCANCODE_ESCAPE,    // SWITCH_PAD_RIGHT
-    SDL_SCANCODE_PAGEDOWN   // SWITCH_PAD_DOWN
+    // entry 0: not holding modifier
+    // entry 1: holding modifier
+    SDL_SCANCODE_UNKNOWN,   SDL_SCANCODE_UNKNOWN,  // SWITCH_PAD_A
+    SDL_SCANCODE_UNKNOWN,   SDL_SCANCODE_UNKNOWN,  // SWITCH_PAD_B
+    SDL_SCANCODE_LCTRL,     SDL_SCANCODE_LCTRL,    // SWITCH_PAD_X
+    SDL_SCANCODE_LSHIFT,    SDL_SCANCODE_LSHIFT,   // SWITCH_PAD_Y
+    SDL_SCANCODE_UNKNOWN,   SDL_SCANCODE_UNKNOWN,  // SWITCH_PAD_LSTICK
+    SDL_SCANCODE_LALT,      SDL_SCANCODE_LALT,     // SWITCH_PAD_RSTICK this triggers alt-ctrl-c for cheat menu
+    SDL_SCANCODE_UNKNOWN,   SDL_SCANCODE_UNKNOWN,  // SWITCH_PAD_L
+    SDL_SCANCODE_UNKNOWN,   SDL_SCANCODE_UNKNOWN,  // SWITCH_PAD_R
+    SDL_SCANCODE_UNKNOWN,   SDL_SCANCODE_UNKNOWN,  // SWITCH_PAD_ZL
+    SDL_SCANCODE_UNKNOWN,   SDL_SCANCODE_UNKNOWN,  // SWITCH_PAD_ZR
+    SDL_SCANCODE_UNKNOWN,   SDL_SCANCODE_UNKNOWN,  // SWITCH_PAD_PLUS
+    SDL_SCANCODE_UNKNOWN,   SDL_SCANCODE_UNKNOWN,  // SWITCH_PAD_MINUS
+    SDL_SCANCODE_BACKSPACE, SDL_SCANCODE_Z,        // SWITCH_PAD_LEFT
+    SDL_SCANCODE_PAGEUP,    SDL_SCANCODE_PAGEUP,   // SWITCH_PAD_UP
+    SDL_SCANCODE_ESCAPE,    SDL_SCANCODE_RETURN,   // SWITCH_PAD_RIGHT
+    SDL_SCANCODE_PAGEDOWN,  SDL_SCANCODE_PAGEDOWN, // SWITCH_PAD_DOWN
 };
 
 static uint8_t map_switch_button_to_sdlmousebutton[SWITCH_NUM_BUTTONS] =
@@ -153,6 +157,7 @@ int switch_poll_event(SDL_Event *event)
                         hires_dy = 0;
                         break;
                     case SWITCH_PAD_ZR:
+                        holding_modifier = 1;
                         slow_mouse = 1;
                         hires_dx = 0;
                         hires_dy = 0;
@@ -201,6 +206,7 @@ int switch_poll_event(SDL_Event *event)
                         hires_dy = 0;
                         break;
                     case SWITCH_PAD_ZR:
+                        holding_modifier = 0;
                         slow_mouse = 0;
                         hires_dx = 0;
                         hires_dy = 0;
@@ -216,21 +222,6 @@ int switch_poll_event(SDL_Event *event)
         }
     }
     return ret;
-}
-
-
-void switch_handle_repeat_keys(void)
-{
-    if (pressed_buttons[SWITCH_PAD_UP]) {
-        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_UP, SDLK_UP);
-    } else if (pressed_buttons[SWITCH_PAD_DOWN]) {
-        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_DOWN, SDLK_DOWN);
-    }
-    if (pressed_buttons[SWITCH_PAD_LEFT]) {
-        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_LEFT, SDLK_LEFT);
-    } else if (pressed_buttons[SWITCH_PAD_RIGHT]) {
-        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_RIGHT, SDLK_RIGHT);
-    }
 }
 
 void switch_handle_analog_sticks()
@@ -506,21 +497,28 @@ static void switch_rescale_analog(int *x, int *y, int dead)
 
 static void switch_button_to_sdlkey_event(int switch_button, SDL_Event *event, uint32_t event_type)
 {
-    SDL_Scancode scan = map_switch_button_to_sdlscancode[switch_button];
+    SDL_Scancode scan;
+    SDL_Keycode key;
+    if (holding_modifier) {
+        scan = map_switch_button_to_sdlscancode[switch_button][1];
+        key = map_switch_button_to_sdlkey[switch_button][1];
+    } else {
+        scan = map_switch_button_to_sdlscancode[switch_button][0];
+        key = map_switch_button_to_sdlkey[switch_button][0];
+    }
+
     event->type = event_type;
     event->key.keysym.scancode = scan;
-    event->key.keysym.sym = map_switch_button_to_sdlkey[switch_button];
+    event->key.keysym.sym = key;
     event->key.keysym.mod = 0;
     event->key.repeat = 0;
 
     if (event_type == SDL_KEYDOWN) {
-        pressed_buttons[switch_button] = 1;
-        const uint8_t *state = SDL_GetKeyboardState(NULL);
+        const uint8_t *state = SDL_GetKeyboardState(nullptr);
         const_cast<uint8_t *>(state)[scan] = 1;
     }
     if (event_type == SDL_KEYUP) {
-        pressed_buttons[switch_button] = 0;
-        const uint8_t *state = SDL_GetKeyboardState(NULL);
+        const uint8_t *state = SDL_GetKeyboardState(nullptr);
         const_cast<uint8_t *>(state)[scan] = 0;
     }
 }
@@ -531,11 +529,9 @@ static void switch_button_to_sdlmouse_event(int switch_button, SDL_Event *event,
     event->button.button = map_switch_button_to_sdlmousebutton[switch_button];
     if (event_type == SDL_MOUSEBUTTONDOWN) {
         event->button.state = SDL_PRESSED;
-        pressed_buttons[switch_button] = 1;
     }
     if (event_type == SDL_MOUSEBUTTONUP) {
         event->button.state = SDL_RELEASED;
-        pressed_buttons[switch_button] = 0;
     }
     event->button.x = last_mouse_x;
     event->button.y = last_mouse_y;
@@ -550,13 +546,13 @@ static void switch_create_and_push_sdlkey_event(uint32_t event_type, SDL_Scancod
     event.key.keysym.mod = 0;
     SDL_PushEvent(&event);
 
-    // Updates the state of the keys otherwise scrolling doesn't work
+    // Updates the state of the keys, otherwise scrolling doesn't work
     if (event_type == SDL_KEYDOWN) {
-        const uint8_t *state = SDL_GetKeyboardState(NULL);
+        const uint8_t *state = SDL_GetKeyboardState(nullptr);
         const_cast<uint8_t *>(state)[scan] = 1;
     }
     else if (event_type == SDL_KEYUP) {
-        const uint8_t *state = SDL_GetKeyboardState(NULL);
+        const uint8_t *state = SDL_GetKeyboardState(nullptr);
         const_cast<uint8_t *>(state)[scan] = 0;
     }
 }
