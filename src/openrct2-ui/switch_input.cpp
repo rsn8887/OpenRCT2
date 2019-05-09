@@ -152,12 +152,12 @@ int switch_poll_event(SDL_Event *event)
                         switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_C, SDLK_c);
                         break;
                     case SWITCH_PAD_ZL:
+                        holding_modifier = 1;
                         fast_mouse = 1;
                         hires_dx = 0;
                         hires_dy = 0;
                         break;
                     case SWITCH_PAD_ZR:
-                        holding_modifier = 1;
                         slow_mouse = 1;
                         hires_dx = 0;
                         hires_dy = 0;
@@ -201,12 +201,12 @@ int switch_poll_event(SDL_Event *event)
                         switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_LCTRL, SDLK_LCTRL);
                         break;
                     case SWITCH_PAD_ZL:
+                        holding_modifier = 0;
                         fast_mouse = 0;
                         hires_dx = 0;
                         hires_dy = 0;
                         break;
                     case SWITCH_PAD_ZR:
-                        holding_modifier = 0;
                         slow_mouse = 0;
                         hires_dx = 0;
                         hires_dy = 0;

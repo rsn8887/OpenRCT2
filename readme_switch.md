@@ -52,8 +52,8 @@ Thanks to my supporters on Patreon: Andyways, CountDuckula, Jason Crawford, Greg
  - Dpad left = rotate construction object (z key)
  - Dpad right = rotate camera (enter key) 
  - R3 (press right stick in) = open cheat menu (ctrl-alt-c)
- - Hold ZR + dpad left = close topmost window (backspace key)
- - Hold ZR + dpad right = exit construction mode (escape key)
+ - Hold ZL + dpad left = close topmost window (backspace key)
+ - Hold ZL + dpad right = exit construction mode (escape key)
  - Minus = toggle between three touch control modes: 
    * Touchpad style drag pointer with finger and tap to click, default: 
       * Move a single finger to move the mouse pointer. Use short tap for left click. Hold a single finger while tapping a second finger for right click. Drag with two fingers to drag and drop. 
