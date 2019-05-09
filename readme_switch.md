@@ -2,7 +2,7 @@
 
 This is my Switch port of OpenRCT2, a re-implementation of RollerCoaster Tycoon 2. A construction and management simulation video game that simulates amusement park management.
 
-Data files from the original game are required to play this game.
+Data files from the original game are required to play this game. _RollerCoaster Tycoon 2_ data files are required to launch the game. Additionally, _RollerCoaster Tycoon 1_ data files are also supported.
 
 Port by @rsn8887.
 
@@ -29,7 +29,9 @@ Thanks to my supporters on Patreon: Andyways, CountDuckula, Jason Crawford, Greg
 
 - Download (see `assets` below), and unzip openrct2_switch.zip and copy the contents over to the `/switch/` folder on your sd card, so that you have a folder `/switch/openrct2` with many folders and files inside.
 
-- Copy all files and folders from a working Windows RollerCoaster Tycoon 2 installation to `/switch/openrct2/rct2/` so that you have a files and folders `/switch/openrct2/rct2/rct2.exe`, `/switch/openrct2/rct2/Data/`, `/switch/openrct2/rct2/Landscapes/`,  `/switch/openrct2/rct2/ObjData/` and many more files and folders there. For my testing, I used the files from the gog.com version.
+- Copy all files and folders from a working *Windows RollerCoaster Tycoon 2* installation to `/switch/openrct2/rct2/` so that you have a files and folders `/switch/openrct2/rct2/rct2.exe`, `/switch/openrct2/rct2/Data/`, `/switch/openrct2/rct2/Landscapes/`,  `/switch/openrct2/rct2/ObjData/` and many more files and folders there. For my testing, I used the files from the gog.com version.
+
+- Optionally, you can also install the *Windows RollerCoaster Tycoon 1* files. Just copy your complete rct1 files to `/switch/openrct2/rct1/`. Then you can select the RCT1 scenarios, and in options you can select to show the rct1 title sequence. For my testing, I used the files from the gog.com version.
 
 - Note: This game takes quite long to load at first, because it generates a bunch of cache files. Subsequent boots are much faster.
 
@@ -41,8 +43,8 @@ Thanks to my supporters on Patreon: Andyways, CountDuckula, Jason Crawford, Greg
  - L = right mouse click 
  - ZR = hold to slow down analog joystick mouse, useful to precisely position the pointer 
  - ZL = hold to speed up analog joystick mouse 
- - B = left mouse click
  - A = right mouse click
+ - B = left mouse click
  - Y = shift key, hold and move mouse up/down to build above the ground 
  - X = ctrl key, hold and move mouse to build multiple pieces at the same height above ground
  - Dpad up = zoom out (page up key) 
@@ -50,6 +52,8 @@ Thanks to my supporters on Patreon: Andyways, CountDuckula, Jason Crawford, Greg
  - Dpad left = close topmost window (backspace key) 
  - Dpad right = exit construction mode (escape key) 
  - R3 (press right stick in) = open cheat menu (ctrl-alt-c)
+ - Hold ZR + dpad left = rotate construction object (z key)
+ - Hold ZR + dpad right = rotate camera (enter key)
  - Minus = toggle between three touch control modes: 
    * Touchpad style drag pointer with finger and tap to click, default: 
       * Move a single finger to move the mouse pointer. Use short tap for left click. Hold a single finger while tapping a second finger for right click. Drag with two fingers to drag and drop. 
@@ -154,11 +158,20 @@ make -j12 openrct2_switch.zip
 ```
 
 # Changelog
+v1.04
+
+- Fix right mouse click input
+- Map object rotation to zr+dpad left and camera rotation to zr+dpad right
+
 v1.03
 
-- Map shift, ctrl, backspace and escape keys, useful to build above ground and quickly close windows
-- Make joystick pointer speed independent of fps
-- Allow opening cheat menu by pressing the right stick in
+- Map shift, ctrl, backspace, and escape keys, useful to build above ground and quickly close windows.
+- Map cheat menu hotkey, now works by pressing the right stick in.
+- Make joystick pointer speed truly independent of fps. It now moves at constant speed even if the frame rate is low. 
+- The filtering options now work as expected. In docked mode, `linear` gives a slightly blurry image, and `sharp nearest neighbor` gives perfectly sharp pixels. 
+- General image quality improvements in both docked and handheld mode. The internal rendering now dynamically switches resolution between 1080p and 720p instead of always rendering at 720p. Also, the mouse pointer looks a bit sharper now in handheld mode. 
+- The window scaling option now works and can be used to blow up or shrink down the whole game screen, including the user interface. 
+- Different game resolutions should also work in principle now. This involves editing the window_width and window_height entries in `/switch/home/openrct2/config.ini`. Only 16x9 ratios will work correctly. I think the default choice of 960x540 looks the best. 
 
 v1.02
 
