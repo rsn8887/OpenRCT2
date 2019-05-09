@@ -161,7 +161,7 @@ make -j12 openrct2_switch.zip
 v1.04
 
 - Fix right mouse click input
-- Map object rotation to zr+dpad left and camera rotation to zr+dpad right
+- Map object rotation to zl+dpad left and camera rotation to zl+dpad right
 
 v1.03
 
