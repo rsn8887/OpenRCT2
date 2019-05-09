@@ -253,8 +253,8 @@ private:
 #endif
 #ifdef __SWITCH__
         // window size changes when switching between docked and handheld modes
-        int window_width, window_height;
-        SDL_GetWindowSize(_window, &window_width, &window_height);
+        int switch_screen_width, switch_screen_height;
+        switch_get_resolution(&switch_screen_width, &switch_screen_height);
 #endif
         {
             CopyBitsToTexture(_screenTexture, _bits, (int32_t)_width, (int32_t)_height, _paletteHWMapped);
@@ -267,7 +267,7 @@ private:
             SDL_SetRenderTarget(_sdlRenderer, nullptr);
 #ifdef __SWITCH__
             //this destrect here shouldn't be needed, but otherwise the image is way too large
-            SDL_Rect destrect = {0, 0, (int32_t)window_width, (int32_t)window_height};
+            SDL_Rect destrect = {0, 0, (int32_t) switch_screen_width, (int32_t) switch_screen_height};
             SDL_RenderCopy(_sdlRenderer, _scaledScreenTexture, nullptr, &destrect);
 #else
             SDL_RenderCopy(_sdlRenderer, _scaledScreenTexture, nullptr, nullptr);
@@ -277,7 +277,7 @@ private:
         {
 #ifdef __SWITCH__
             //this destrect here shouldn't be needed, but otherwise the image is way too large
-            SDL_Rect destrect = {0, 0, (int32_t)window_width, (int32_t)window_height};
+            SDL_Rect destrect = {0, 0, (int32_t) switch_screen_width, (int32_t) switch_screen_height};
             SDL_RenderCopy(_sdlRenderer, _screenTexture, nullptr, &destrect);
 #else
             SDL_RenderCopy(_sdlRenderer, _screenTexture, nullptr, nullptr);
@@ -296,27 +296,30 @@ private:
         }
 
 #ifdef __SWITCH__
-        SDL_Rect pointer_dst;
-        int hot_x;
-        int hot_y;
-        int w;
-        int h;
-        GetContext()->GetUiContext()->GetCursorHotspotAndSize(&hot_x, &hot_y, &w, &h);
-        context_get_cursor_position(&(pointer_dst.x), &(pointer_dst.y));
-        if (pointer_dst.x > hot_x) {
-            pointer_dst.x = ((pointer_dst.x - hot_x) * window_width) / _width;
-        } else {
-            pointer_dst.x = 0;
+        if (SDL_ShowCursor(SDL_QUERY))
+        {
+            SDL_Rect pointer_dst;
+            int hot_x;
+            int hot_y;
+            int w;
+            int h;
+            GetContext()->GetUiContext()->GetCursorHotspotAndSize(&hot_x, &hot_y, &w, &h);
+            context_get_cursor_position(&(pointer_dst.x), &(pointer_dst.y));
+            if (pointer_dst.x > hot_x) {
+                pointer_dst.x = ((pointer_dst.x - hot_x) * switch_screen_width) / gConfigGeneral.window_width;
+            } else {
+                pointer_dst.x = 0;
+            }
+            if (pointer_dst.y > hot_y) {
+                pointer_dst.y = ((pointer_dst.y - hot_y) * switch_screen_height) / gConfigGeneral.window_height;
+            } else {
+                pointer_dst.y = 0;
+            }
+            pointer_dst.w = (w * switch_screen_width) / (gConfigGeneral.window_width);
+            pointer_dst.h = (h * switch_screen_height) / (gConfigGeneral.window_height);
+            SDL_Texture* pointer_tex = GetContext()->GetUiContext()->GetCursorTexture();
+            SDL_RenderCopy(_sdlRenderer, pointer_tex, nullptr, &pointer_dst);
         }
-        if (pointer_dst.y > hot_y) {
-            pointer_dst.y = ((pointer_dst.y - hot_y) * window_height) / _height;
-        } else {
-            pointer_dst.y = 0;
-        }
-        pointer_dst.w = (w * window_width) / _width;
-        pointer_dst.h = (h * window_height) / _height;
-        SDL_Texture* pointer_tex = GetContext()->GetUiContext()->GetCursorTexture();
-        SDL_RenderCopy(_sdlRenderer, pointer_tex, nullptr, &pointer_dst);
 #endif
         SDL_RenderPresent(_sdlRenderer);
 

@@ -272,8 +272,8 @@ public:
     void GetCursorPosition(int32_t* x, int32_t* y) override
     {
 #ifdef __SWITCH__
-        *x = _cursorState.x;
-        *y = _cursorState.y;
+        *x = (int32_t)std::ceil(_cursorState.x * gConfigGeneral.window_scale);
+        *y = (int32_t)std::ceil(_cursorState.y * gConfigGeneral.window_scale);
 #else
         SDL_GetMouseState(x, y);
 #endif
@@ -281,7 +281,17 @@ public:
 
     void SetCursorPosition(int32_t x, int32_t y) override
     {
+#ifdef __SWITCH__
+        SDL_Event event;
+        event.type = SDL_MOUSEMOTION;
+        event.motion.x = x;
+        event.motion.y = y;
+        event.motion.xrel = 0;
+        event.motion.yrel = 0;
+        SDL_PushEvent(&event);
+#else
         SDL_WarpMouseInWindow(nullptr, x, y);
+#endif
     }
 
     void SetCursorTrap(bool value) override
