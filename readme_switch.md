@@ -49,11 +49,11 @@ Thanks to my supporters on Patreon: Andyways, CountDuckula, Jason Crawford, Greg
  - X = ctrl key, hold and move mouse to build multiple pieces at the same height above ground
  - Dpad up = zoom out (page up key) 
  - Dpad down = zoom in (page down key) 
- - Dpad left = close topmost window (backspace key) 
- - Dpad right = exit construction mode (escape key) 
+ - Dpad left = rotate construction object (z key)
+ - Dpad right = rotate camera (enter key) 
  - R3 (press right stick in) = open cheat menu (ctrl-alt-c)
- - Hold ZR + dpad left = rotate construction object (z key)
- - Hold ZR + dpad right = rotate camera (enter key)
+ - Hold ZR + dpad left = close topmost window (backspace key)
+ - Hold ZR + dpad right = exit construction mode (escape key)
  - Minus = toggle between three touch control modes: 
    * Touchpad style drag pointer with finger and tap to click, default: 
       * Move a single finger to move the mouse pointer. Use short tap for left click. Hold a single finger while tapping a second finger for right click. Drag with two fingers to drag and drop. 
