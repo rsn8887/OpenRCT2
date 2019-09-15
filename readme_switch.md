@@ -23,7 +23,7 @@ Thanks to devkitPro for making Switch homebrew possible.
 
 Thanks to Milenko for testing and making screenshots.
 
-Thanks to my supporters on Patreon: Andyways, CountDuckula, Jason Crawford, Greg Gibson, Jesse Harlin, Özgür Karter, Matthew Machnee, Milenko, and RadicalR.
+Thanks to my supporters on Patreon: Andyways, CountDuckula, Duncan Harris, Greg Gibson, Jesse Harlin, Ã–zgÃ¼r Karter, Matthew Machnee, Mored1984, Ibrahim Fazel Poor, and RadicalR.
 
 # Installation
 
@@ -158,6 +158,10 @@ make -j12 openrct2_switch.zip
 ```
 
 # Changelog
+v1.05
+
+- Re-compile with 9.0.0 support
+
 v1.04
 
 - Fix right mouse click input
