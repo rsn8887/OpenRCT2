@@ -158,6 +158,10 @@ make -j12 openrct2_switch.zip
 ```
 
 # Changelog
+v1.06
+
+- Fix up and re-compile with 12.0.0 support
+
 v1.05
 
 - Re-compile with 9.0.0 support

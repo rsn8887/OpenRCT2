@@ -34,7 +34,7 @@ project(openrct2 CXX)
 
 if (SWITCH_BUILD)
     set(SHORT_NAME openrct2)
-    set(SWITCH_VERSION 1.05)
+    set(SWITCH_VERSION 1.06)
 endif()
 
 include(cmake/platform.cmake)
@@ -259,6 +259,10 @@ else ()
 
     if(APPLE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=objc-method-access")
+    endif()
+
+    if(SWITCH_BUILD)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-error=class-memaccess")
     endif()
 
     # On mingw all code is already PIC, this will avoid compiler error on redefining this option

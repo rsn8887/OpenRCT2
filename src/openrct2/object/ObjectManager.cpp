@@ -541,7 +541,7 @@ private:
     template<typename T, typename TFunc> static void ParallelFor(const std::vector<T>& items, TFunc func)
     {
 #ifdef __SWITCH__
-        size_t partitions = 4;
+        size_t partitions = 1;
 #else
         auto partitions = std::thread::hardware_concurrency();
 #endif

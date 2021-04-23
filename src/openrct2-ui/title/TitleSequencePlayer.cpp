@@ -39,7 +39,9 @@
 #include <openrct2/world/Map.h>
 #include <openrct2/world/Scenery.h>
 #include <openrct2/world/Sprite.h>
-
+#ifdef __SWITCH__
+#include <stdexcept>
+#endif
 using namespace OpenRCT2;
 
 class TitleSequencePlayer final : public ITitleSequencePlayer

@@ -15,7 +15,7 @@ int isDocked()
     switch (appletGetOperationMode()) {
         case AppletOperationMode_Handheld:
             return 0;
-        case AppletOperationMode_Docked:
+        case AppletOperationMode_Console:
             return 1;
         default:
             return 0;

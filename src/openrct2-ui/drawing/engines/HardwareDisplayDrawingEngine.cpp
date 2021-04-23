@@ -262,8 +262,15 @@ private:
         if (smoothNN)
         {
             SDL_SetRenderTarget(_sdlRenderer, _scaledScreenTexture);
+#ifdef __SWITCH__
+            //this destrect here shouldn't be needed, but otherwise the image is way too large
+            int w, h;
+            SDL_QueryTexture(_scaledScreenTexture, nullptr, nullptr, &w, &h);
+            SDL_Rect destrect_scaled = {0, 0, w, h};
+            SDL_RenderCopy(_sdlRenderer, _screenTexture, nullptr, &destrect_scaled);
+#else
             SDL_RenderCopy(_sdlRenderer, _screenTexture, nullptr, nullptr);
-
+#endif
             SDL_SetRenderTarget(_sdlRenderer, nullptr);
 #ifdef __SWITCH__
             //this destrect here shouldn't be needed, but otherwise the image is way too large
